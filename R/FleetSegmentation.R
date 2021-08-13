@@ -2,9 +2,9 @@
 #' @import knitr
 #' @import kableExtra
 #' @import RColorBrewer
-#' @import dplyr
+#' @import ellipsis
+#' @import tidyverse
 #' @import tidyr
-#' @import ggplot2
 #' @import scales
 #' @import ggpubr
 #' @import stringr
