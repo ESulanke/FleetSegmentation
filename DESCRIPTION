@@ -1,0 +1,51 @@
+Package: FleetSegmentation
+Type: Package
+Title: A Package For The Segmentation Of Fishing Fleets
+Year: 2021
+Version: 1.0.3
+Author: Erik Sulanke <erik.sulanke@thuenen.de>
+Maintainer: Erik Sulanke <erik.sulanke@thuenen.de>
+Language: en-US
+Description: This package contains functions for a multivariate approach to the segmentation of fishing fleets into target fisheries.
+    It was built by Erik Sulanke, research associate at the Thuenen Institute for Sea Fisheries in Bremerhaven, Germany, subunit for economics.
+    The pilot project in which this package was developed was set in the DCF of the STECF.
+License: MIT + file LICENSE
+Depends: 
+    plotly,
+    knitr,
+    kableExtra,
+    RColorBrewer,
+    dplyr,
+    tidyr,
+    ggplot2,
+    scales,
+    ggpubr,
+    stats,
+    stringr,
+    lme4,
+    rpart,
+    data.table,
+    vegan,
+    factoextra,
+    FactoMineR,
+    dendextend,
+    cluster,
+    NbClust,
+    fpc,
+    ade4,
+    BBmisc,
+    clustree,
+    networkD3,
+    htmlwidgets,
+    labdsv,
+    ggfortify,
+    corrplot,
+    ggforce,
+    concaveman,
+    forcats,
+    ggrepel,
+    ggdendro,
+    R (>= 2.10)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
