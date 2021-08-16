@@ -1,7 +1,7 @@
 Package: FleetSegmentation
 Type: Package
 Title: A Package For The Segmentation Of Fishing Fleets
-Year: 2021
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 Version: 1.0.3
 Author: Erik Sulanke <erik.sulanke@thuenen.de>
 Maintainer: Erik Sulanke <erik.sulanke@thuenen.de>
@@ -49,3 +49,6 @@ Depends:
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
+VignetteBuilder: knitr
+Suggests: 
+    rmarkdown
