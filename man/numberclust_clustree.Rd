@@ -7,7 +7,7 @@
 numberclust_clustree(
   catchdata,
   max_clusternumber = ifelse(nrow(catchdata) <= 15, (nrow(catchdata) - 1), 15),
-  distance = "euclidean",
+  distance = "jaccard",
   method = "average"
 )
 }
@@ -16,9 +16,9 @@ numberclust_clustree(
 
 \item{max_clusternumber}{The maximum number of clusters to be expected. Defaults to 1 less than the number of ships in the catchdata-frame, up to a maximum of 15.}
 
-\item{distance}{The distance measure used. Defaults to euclidean distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with euclidean distance and the average linkage method! Changing either of them is not advised!}
+\item{distance}{The distance measure used. Defaults to modified (metric-converted) Bray-Curtis distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!}
 
-\item{method}{The link function used. Defaults to average linkage. CAUTION! The clustering approach for the fleet segmentation is designed to work with euclidean distance and the average linkage method! Changing either of them is not advised!}
+\item{method}{The link function used. Defaults to average linkage. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!}
 }
 \description{
 This function creates a clustering tree with the clustree()-function from the eponymous package. It visualizes the clustering process by showing the splits

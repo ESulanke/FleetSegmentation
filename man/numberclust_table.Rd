@@ -8,7 +8,7 @@ numberclust_table(
   catchdata,
   max_clusternumber = ifelse(nrow(catchdata) <= 15, (nrow(catchdata) - 1), 15),
   style = "basic",
-  distance = "euclidean",
+  distance = "jaccard",
   method = "average"
 )
 }
@@ -19,14 +19,14 @@ numberclust_table(
 
 \item{style}{The output style, defaults to `basic`, which prints a data frame in the console and can be stored. For a html-version, use `html`}
 
-\item{distance}{The distance measure used. Defaults to euclidean distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with euclidean distance and the average linkage method! Changing either of them is not advised!}
+\item{distance}{The distance measure used. Defaults to modified (metric conversion) Bray-Curtis distance distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!}
 
-\item{method}{The link function used. Defaults to average linkage. CAUTION! The clustering approach for the fleet segmentation is designed to work with euclidean distance and the average linkage method! Changing either of them is not advised!}
+\item{method}{The link function used. Defaults to average linkage. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!}
 }
 \description{
 The fleet segmentation package uses the the average silhouettes, the Mantel test, the Davis-Bouldin index,
 the SD-index and the Calinski-Harabasz index. This function gives the values of those indices for the given maximal number of clusters in a table, which can be printed in a basic or html format or stored as a data frame.
-An euclidean distance matrix is computed from the input data, the clustering is performed as a hierarchical agglomerative clustering (HAC) using the average linkage link function.
+A modified (metric converted) Bray-Curtis distance matrix is computed from the input data, the clustering is performed as a hierarchical agglomerative clustering (HAC) using the average linkage link function.
 }
 \examples{
 data <- example_catchdata

@@ -81,12 +81,12 @@ catchdata_transformation <- function(data){
 #'
 #' @description The fleet segmentation package uses the the average silhouettes, the Mantel test, the Davis-Bouldin index,
 #' the SD-index and the Calinski-Harabasz index. This function gives the values of those indices for the given maximal number of clusters in a table, which can be printed in a basic or html format or stored as a data frame.
-#' An euclidean distance matrix is computed from the input data, the clustering is performed as a hierarchical agglomerative clustering (HAC) using the average linkage link function.
+#' A modified (metric converted) Bray-Curtis distance matrix is computed from the input data, the clustering is performed as a hierarchical agglomerative clustering (HAC) using the average linkage link function.
 #' @param catchdata The transformed catchdata created with catchdata_transformation()
 #' @param max_clusternumber The maximum number of clusters to be expected. Defaults to 1 less than the number of ships in the catchdata-frame, up to a maximum of 15.
 #' @param style The output style, defaults to `basic`, which prints a data frame in the console and can be stored. For a html-version, use `html`
-#' @param distance The distance measure used. Defaults to euclidean distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with euclidean distance and the average linkage method! Changing either of them is not advised!
-#' @param method The link function used. Defaults to average linkage. CAUTION! The clustering approach for the fleet segmentation is designed to work with euclidean distance and the average linkage method! Changing either of them is not advised!
+#' @param distance The distance measure used. Defaults to modified (metric conversion) Bray-Curtis distance distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!
+#' @param method The link function used. Defaults to average linkage. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!
 #' @keywords number of clusters
 #' @keywords table
 #' @export numberclust_table
@@ -98,7 +98,7 @@ catchdata_transformation <- function(data){
 #' numberclust_table(catchdata = catchdata,max_clusternumber = 15)
 #' numberclust_table(catchdata = catchdata,max_clusternumber = 15,style = "html")
 #' optclust_table <- numberclust_table(catchdata = catchdata,max_clusternumber = 15)
-numberclust_table <- function(catchdata,max_clusternumber=ifelse(nrow(catchdata)<= 15,(nrow(catchdata)-1),15),style="basic", distance="euclidean", method="average") {
+numberclust_table <- function(catchdata,max_clusternumber=ifelse(nrow(catchdata)<= 15,(nrow(catchdata)-1),15),style="basic", distance="jaccard", method="average") {
   # calculate distance matrix
   distmat <- vegdist(catchdata, method = distance)
   # perform clustering
@@ -175,8 +175,8 @@ numberclust_table <- function(catchdata,max_clusternumber=ifelse(nrow(catchdata)
 #' be displayed without any further features or with the recommended cutting heights (setting dend_method to "range") or a cut at a defined linkage distance (setting dend_method to "cut").
 #' @param catchdata The transformed catchdata created with catchdata_transformation()
 #' @param max_clusternumber The maximum number of clusters to be expected. Defaults to 1 less than the number of ships in the catchdata-frame, up to a maximum of 15.
-#' @param distance The distance measure used. Defaults to euclidean distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with euclidean distance and the average linkage method! Changing either of them is not advised!
-#' @param method The link function used. Defaults to average linkage. CAUTION! The clustering approach for the fleet segmentation is designed to work with euclidean distance and the average linkage method! Changing either of them is not advised!
+#' @param distance The distance measure used. Defaults to modified (metric-converted) Bray-Curtis distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!
+#' @param method The link function used. Defaults to average linkage. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!
 #' @param dend_method The style of the plotted dendrogram. "basic" returns a blank dendrogram, "range" a dendrogram with the recommended cutting heights depicted, "cut" enables the user to cut the dendrogram at a height of his choice. The resulting number of clusters will be shown in the plot.
 #' @param dend_cut The height used to cut the dendrogram. Defaults to 0.75, which showed to be the appropriate cutting height for various fleet data sets.
 #' @param range_min The lower border of the cutting range set for a dendrogram with the "range"- method
@@ -190,7 +190,7 @@ numberclust_table <- function(catchdata,max_clusternumber=ifelse(nrow(catchdata)
 #' stockdata <- assign_stocks(data=data)
 #' catchdata <- catchdata_transformation(data = stockdata)
 #' numberclust_plot(catchdata = catchdata,max_clusternumber = 15)
-numberclust_plot <- function(catchdata,max_clusternumber=ifelse(nrow(catchdata)<= 15,(nrow(catchdata)-1),15), distance= "euclidean", method = "average",dend_method = "basic", dend_cut = 0.75, range_min = 0.5, range_max = 1) {
+numberclust_plot <- function(catchdata,max_clusternumber=ifelse(nrow(catchdata)<= 15,(nrow(catchdata)-1),15), distance= "jaccard", method = "average",dend_method = "basic", dend_cut = 0.75, range_min = 0.5, range_max = 1) {
   # calculate distance matrix
   distmat <- vegdist(catchdata, method = distance)
   # perform clustering
@@ -290,8 +290,8 @@ numberclust_plot <- function(catchdata,max_clusternumber=ifelse(nrow(catchdata)<
 #' @description This function plots a dendrogram of the clustering. The dendrogram can either be displayed without any further features
 #' or with the recommended cutting heights (setting dend_method to "range") or a cut at a defined linkage distance (setting dend_method to "cut").
 #' @param catchdata The transformed catchdata created with catchdata_transformation()
-#' @param distance The distance measure used. Defaults to euclidean distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with euclidean distance and the average linkage method! Changing either of them is not advised!
-#' @param method The link function used. Defaults to average linkage. CAUTION! The clustering approach for the fleet segmentation is designed to work with euclidean distance and the average linkage method! Changing either of them is not advised!
+#' @param distance The distance measure used. Defaults to modified (metric-converted) Bray-Curtis distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!
+#' @param method The link function used. Defaults to average linkage. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!
 #' @param dend_method The style of the plotted dendrogram. "basic" returns a blank dendrogram, "range" a dendrogram with the recommended cutting heights depicted, "cut" enables the user to cut the dendrogram at a height of his choice. The resulting number of clusters will be shown in the plot.
 #' @param dend_cut The height used to cut the dendrogram. Defaults to 0.75, which showed to be the appropriate cutting height for various fleet data sets.
 #' @param range_min The lower border of the cutting range set for a dendrogram with the "range"- method
@@ -309,7 +309,7 @@ numberclust_plot <- function(catchdata,max_clusternumber=ifelse(nrow(catchdata)<
 #' ### dendrogram with range of good cutting heights
 #' numberclust_dendrogram(catchdata=catchdata, dend_method= "cut", dend_cut = 0.75)
 #' ### dendrogram with cut at a linkage distance of 0.75 and the number of resulting clusters
-numberclust_dendrogram <- function(catchdata, distance= "euclidean", method = "average",dend_method = "basic", dend_cut = 0.75, range_min = 0.5, range_max = 1){
+numberclust_dendrogram <- function(catchdata, distance= "jaccard", method = "average",dend_method = "basic", dend_cut = 0.75, range_min = 0.5, range_max = 1){
   # calculate distance matrix
   distmat <- vegdist(catchdata, method = distance)
   # perform clustering
@@ -374,8 +374,8 @@ numberclust_dendrogram <- function(catchdata, distance= "euclidean", method = "a
 #' many clusters to use.
 #' @param catchdata The transformed catchdata created with catchdata_transformation()
 #' @param max_clusternumber The maximum number of clusters to be expected. Defaults to 1 less than the number of ships in the catchdata-frame, up to a maximum of 15.
-#' @param distance The distance measure used. Defaults to euclidean distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with euclidean distance and the average linkage method! Changing either of them is not advised!
-#' @param method The link function used. Defaults to average linkage. CAUTION! The clustering approach for the fleet segmentation is designed to work with euclidean distance and the average linkage method! Changing either of them is not advised!
+#' @param distance The distance measure used. Defaults to modified (metric-converted) Bray-Curtis distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!
+#' @param method The link function used. Defaults to average linkage. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!
 #' @keywords number of clusters
 #' @keywords clustree
 #' @export numberclust_clustree
@@ -384,7 +384,7 @@ numberclust_dendrogram <- function(catchdata, distance= "euclidean", method = "a
 #' stockdata <- assign_stocks(data=data)
 #' catchdata <- catchdata_transformation(data = stockdata)
 #' numberclust_clustree(catchdata = catchdata,max_clusternumber = 15)
-numberclust_clustree <- function(catchdata,max_clusternumber=ifelse(nrow(catchdata)<= 15,(nrow(catchdata)-1),15), distance = "euclidean", method = "average") {
+numberclust_clustree <- function(catchdata,max_clusternumber=ifelse(nrow(catchdata)<= 15,(nrow(catchdata)-1),15), distance = "jaccard", method = "average") {
   # calculate distance matrix
   distmat <- vegdist(catchdata, method = distance)
   # perform clustering
@@ -406,12 +406,12 @@ numberclust_clustree <- function(catchdata,max_clusternumber=ifelse(nrow(catchda
 #' @title Perform clustering
 #'
 #' @description This is the core function to perform the clustering of the catchdata. Use the number of suitable number of clusters estimated with numberclust_table() and numberclust_plot().
-#' An euclidean distance matrix is computed from the input data, the clustering is performed as a hierarchical agglomerative clustering (HAC) using the average linkage link function.
+#' A modified (metric-converted) Bray-Curtis distance matrix is computed from the input data, the clustering is performed as a hierarchical agglomerative clustering (HAC) using the average linkage link function.
 #' The function creates a new data frame, which can be printed or stored.
 #' @param catchdata The transformed catchdata created with catchdata_transformation()
 #' @param n_cluster The number of clusters to be generated. No default.
-#' @param distance The distance measure used. Defaults to euclidean distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with euclidean distance and the average linkage method! Changing either of them is not advised!
-#' @param method The link function used. Defaults to average linkage. CAUTION! The clustering approach for the fleet segmentation is designed to work with euclidean distance and the average linkage method! Changing either of them is not advised!
+#' @param distance The distance measure used. Defaults to modified (metric-converted) Bray-Curtis distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!
+#' @param method The link function used. Defaults to average linkage. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!
 #' @keywords clustering
 #' @export segmentation_clustering
 #' @examples
@@ -419,7 +419,7 @@ numberclust_clustree <- function(catchdata,max_clusternumber=ifelse(nrow(catchda
 #' stockdata <- assign_stocks(data=data)
 #' catchdata <- catchdata_transformation(data = stockdata)
 #' clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
-segmentation_clustering <- function(catchdata,n_cluster, distance = "euclidean",method = "average") {
+segmentation_clustering <- function(catchdata,n_cluster, distance = "jaccard",method = "average") {
   # calculate distance matrix
   distmat <- vegdist(catchdata, method = distance)
   # perform clustering

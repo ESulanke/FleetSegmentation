@@ -6,7 +6,7 @@
 \usage{
 numberclust_dendrogram(
   catchdata,
-  distance = "euclidean",
+  distance = "jaccard",
   method = "average",
   dend_method = "basic",
   dend_cut = 0.75,
@@ -17,9 +17,9 @@ numberclust_dendrogram(
 \arguments{
 \item{catchdata}{The transformed catchdata created with catchdata_transformation()}
 
-\item{distance}{The distance measure used. Defaults to euclidean distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with euclidean distance and the average linkage method! Changing either of them is not advised!}
+\item{distance}{The distance measure used. Defaults to modified (metric-converted) Bray-Curtis distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!}
 
-\item{method}{The link function used. Defaults to average linkage. CAUTION! The clustering approach for the fleet segmentation is designed to work with euclidean distance and the average linkage method! Changing either of them is not advised!}
+\item{method}{The link function used. Defaults to average linkage. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!}
 
 \item{dend_method}{The style of the plotted dendrogram. "basic" returns a blank dendrogram, "range" a dendrogram with the recommended cutting heights depicted, "cut" enables the user to cut the dendrogram at a height of his choice. The resulting number of clusters will be shown in the plot.}
 

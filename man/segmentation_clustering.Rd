@@ -7,7 +7,7 @@
 segmentation_clustering(
   catchdata,
   n_cluster,
-  distance = "euclidean",
+  distance = "jaccard",
   method = "average"
 )
 }
@@ -16,13 +16,13 @@ segmentation_clustering(
 
 \item{n_cluster}{The number of clusters to be generated. No default.}
 
-\item{distance}{The distance measure used. Defaults to euclidean distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with euclidean distance and the average linkage method! Changing either of them is not advised!}
+\item{distance}{The distance measure used. Defaults to modified (metric-converted) Bray-Curtis distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!}
 
-\item{method}{The link function used. Defaults to average linkage. CAUTION! The clustering approach for the fleet segmentation is designed to work with euclidean distance and the average linkage method! Changing either of them is not advised!}
+\item{method}{The link function used. Defaults to average linkage. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!}
 }
 \description{
 This is the core function to perform the clustering of the catchdata. Use the number of suitable number of clusters estimated with numberclust_table() and numberclust_plot().
-An euclidean distance matrix is computed from the input data, the clustering is performed as a hierarchical agglomerative clustering (HAC) using the average linkage link function.
+A modified (metric-converted) Bray-Curtis distance matrix is computed from the input data, the clustering is performed as a hierarchical agglomerative clustering (HAC) using the average linkage link function.
 The function creates a new data frame, which can be printed or stored.
 }
 \examples{
