@@ -2,7 +2,7 @@
 title: "FleetSegmentation package vignette"
 author:
 - name: Erik Sulanke
-  affiliation: Thuenen-Institute of Sea Fisheries, Bremerhaven, Germany
+  affiliation: Thünen Institute of Sea Fisheries, Bremerhaven, Germany
   email: erik.sulanke@thuenend.de
 abstract: "This is the manual for the *FleetSegmentation*-package (FS-package) developed by Erik Sulanke of the Thuenen-Institut of Sea Fisheries in Bremerhaven, Germany. The package contains ready-to-use functions to apply a multivariate approach to the segmentation of fishing fleets. It is based on hierarchical agglomerative clustering (HAC) of vessel catch data. Functions for diagnostic plots, which enable the user to characterize fleet segments, are included. In the manual, the use of the package will be demonstrated with example data, which is also included in the package."
 keywords: "Fishing fleet, segmentation, clustering"
