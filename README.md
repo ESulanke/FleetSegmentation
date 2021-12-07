@@ -4,7 +4,7 @@ The best way to install the FleetSegmentation package is by running:
 library(devtools)
 and then
 install_github("ESulanke/FleetSegmentation", build_manual = T, build_vignettes = T)
-From your console. If you have all the prerequisites set and the installation still doesn't work, don't hesitate to contact me via erik.sulanke@thuenen.de so we can find a way to fix this.
+from your console. If you have all the prerequisites set and the installation still doesn't work, don't hesitate to contact me via erik.sulanke@thuenen.de so we can find a way to fix this.
 
 All the best, 
 Erik
