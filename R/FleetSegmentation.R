@@ -32,6 +32,7 @@
 #' @import ggrepel
 #' @import ggdendro
 #' @import stats
+#' @import rmarkdown
 globalVariables(c("Dim.1" ,"Dim.2", "MED_stocks", "MeanDim1", "MeanDim2" ,"area", "as.dendrogram","catch_cluster",
                   "catch_cluster_stock", "catch_ship", "catch_ship_stock","clust_size", "cluster", "cluster_nr" ,"cmdscale",
                   "colorRampPalette", "cor", "cum_share",dist ,"hclust", "k", "landings" ,"landings_stock", "landkg" ,"major.area" ,"r",
