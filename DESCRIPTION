@@ -45,10 +45,10 @@ Depends:
     forcats,
     ggrepel,
     ggdendro,
-    R (>= 2.10)
+    R (>= 2.10),
+    rmarkdown
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
-Suggests: 
-    rmarkdown
+
