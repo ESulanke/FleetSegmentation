@@ -193,7 +193,7 @@ numberclust_table <- function(catchdata,max_clusternumber=ifelse(nrow(catchdata)
 #' stockdata <- assign_stocks(data=data)
 #' catchdata <- catchdata_transformation(data = stockdata)
 #' numberclust_plot(catchdata = catchdata,max_clusternumber = 15)
-numberclust_plot <- function(catchdata,max_clusternumber=ifelse(nrow(catchdata)<= 15,(nrow(catchdata)-1),15), distance= "jaccard", method = "average",dend_method = "basic", dend_cut = 0.75, range_min = 0.5, range_max = 1) {
+numberclust_plot <- function(catchdata,max_clusternumber=ifelse(nrow(catchdata)<= 15,(nrow(catchdata)-1),15), distance= "jaccard", method = "average",dend_method = "basic", dend_cut = 0.75, range_min = 0.4, range_max = 0.8) {
   # calculate distance matrix
   distmat <- vegdist(catchdata, method = distance)
   # perform clustering
@@ -237,7 +237,7 @@ numberclust_plot <- function(catchdata,max_clusternumber=ifelse(nrow(catchdata)<
     dendro <- ggplot(ggdend,labels = F,theme = theme_minimal())+
       theme(axis.text.x = element_blank(),axis.title.x = element_blank())+
       labs(y="Linkage distance")+
-      scale_y_continuous(breaks = c(0,.25,.5,.75,1,1.25,1.5,1.75))
+      scale_y_continuous(breaks = c(0,.25,.5,.75,1))
   }
   if(dend_method == "range"){
     dend <- dend %>% set("branches_lwd", 0.7)
@@ -253,7 +253,7 @@ numberclust_plot <- function(catchdata,max_clusternumber=ifelse(nrow(catchdata)<
     dendro <- ggplot(ggdend,labels = F,theme = theme_minimal())+
       theme(axis.text.x = element_blank(),axis.title.x = element_blank())+
       labs(y="Linkage distance")+
-      scale_y_continuous(breaks = c(0,.25,.5,.75,1,1.25,1.5,1.75))+
+      scale_y_continuous(breaks = c(0,.25,.5,.75,1))+
       geom_hline(yintercept = (range_max - (range_max-range_min)/2), size=.8, color="#252525",linetype="dashed",alpha=.8)+
       geom_hline(yintercept = range_max, size=.8, color="#5f9ea0",linetype="dashed",alpha=.8)+
       geom_hline(yintercept = range_min, size=.8, color="#5f9ea0",linetype="dashed",alpha=.8)+
@@ -276,7 +276,7 @@ numberclust_plot <- function(catchdata,max_clusternumber=ifelse(nrow(catchdata)<
       ggplot(ggdend,labels = F,theme = theme_minimal())+
         theme(axis.text.x = element_blank(),axis.title.x = element_blank())+
         labs(y="Linkage distance")+
-        scale_y_continuous(breaks = c(0,.25,.5,.75,1,1.25,1.5,1.75))+
+        scale_y_continuous(breaks = c(0,.25,.5,.75,1))+
         geom_hline(yintercept = dend_cut, size=.8, color="#252525",linetype="dashed",alpha=.8)+
         geom_label(aes(dend_data_xpos,dend_data_ypos,label=dend_label),colour="black",fill="white",size=3,fontface="bold")
     )
@@ -312,7 +312,7 @@ numberclust_plot <- function(catchdata,max_clusternumber=ifelse(nrow(catchdata)<
 #' ### dendrogram with range of good cutting heights
 #' numberclust_dendrogram(catchdata=catchdata, dend_method= "cut", dend_cut = 0.75)
 #' ### dendrogram with cut at a linkage distance of 0.75 and the number of resulting clusters
-numberclust_dendrogram <- function(catchdata, distance= "jaccard", method = "average",dend_method = "basic", dend_cut = 0.75, range_min = 0.5, range_max = 1){
+numberclust_dendrogram <- function(catchdata, distance= "jaccard", method = "average",dend_method = "basic", dend_cut = 0.75, range_min = 0.4, range_max = 0.8){
   # calculate distance matrix
   distmat <- vegdist(catchdata, method = distance)
   # perform clustering
@@ -325,7 +325,7 @@ numberclust_dendrogram <- function(catchdata, distance= "jaccard", method = "ave
     dendro <- ggplot(ggdend,labels = F,theme = theme_minimal())+
       theme(axis.text.x = element_blank(),axis.title.x = element_blank())+
       labs(y="Linkage distance")+
-      scale_y_continuous(breaks = c(0,.25,.5,.75,1,1.25,1.5,1.75))
+      scale_y_continuous(breaks = c(0,.25,.5,.75,1))
   }
   if(dend_method == "range"){
     dend <- dend %>% set("branches_lwd", 0.7)
@@ -341,7 +341,7 @@ numberclust_dendrogram <- function(catchdata, distance= "jaccard", method = "ave
     dendro <- ggplot(ggdend,labels = F,theme = theme_minimal())+
       theme(axis.text.x = element_blank(),axis.title.x = element_blank())+
       labs(y="Linkage distance")+
-      scale_y_continuous(breaks = c(0,.25,.5,.75,1,1.25,1.5,1.75))+
+      scale_y_continuous(breaks = c(0,.25,.5,.75,1))+
       geom_hline(yintercept = (range_max - (range_max-range_min)/2), size=.8, color="#252525",linetype="dashed",alpha=.8)+
       geom_hline(yintercept = range_max, size=.8, color="#5f9ea0",linetype="dashed",alpha=.8)+
       geom_hline(yintercept = range_min, size=.8, color="#5f9ea0",linetype="dashed",alpha=.8)+
@@ -362,7 +362,7 @@ numberclust_dendrogram <- function(catchdata, distance= "jaccard", method = "ave
     dendro <- ggplot(ggdend,labels = F,theme = theme_minimal())+
       theme(axis.text.x = element_blank(),axis.title.x = element_blank())+
       labs(y="Linkage distance")+
-      scale_y_continuous(breaks = c(0,.25,.5,.75,1,1.25,1.5,1.75))+
+      scale_y_continuous(breaks = c(0,.25,.5,.75,1))+
       geom_hline(yintercept = dend_cut, size=.8, color="#252525",linetype="dashed",alpha=.8)+
       geom_label(aes(dend_data_xpos,dend_data_ypos,label=dend_label),colour="black",fill="white",size=3,fontface="bold")
   }
