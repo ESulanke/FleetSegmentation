@@ -1231,7 +1231,7 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T){
 #' b) assessed by ICES, but caught out of stock-managed areas.
 #' The automatically generated stocks comprise the species name and the FAO area.
 #' The relevant quantity is defined by the argument threshold.auto.generate.
-#' @param threshold.auto.generate. Threshold of automatic generation of ICES stocks. Only relevant if auto.generate = T. Defaults to 5000.
+#' @param threshold.auto.generate. Threshold of automatic generation of ICES stocks. Only relevant if auto.generate = T. Defaults to 500kg.
 #' @param min.share The minimal share a stock has to have on at least one vessels catch to be included in the stock dataframe. Defaults to 0, i.e. every stock is retained by default.
 #' @keywords Stocks
 #' @export assign_stocks
