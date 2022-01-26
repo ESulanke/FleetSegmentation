@@ -1239,7 +1239,7 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T){
 #' data <- example_catchdata
 #' stockdata <- assign_stocks(data=data)
 #' stockdata <- assign_stocks(data=data, reduce=FALSE, auto.generate=FALSE)
-assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generate.=5000,min.share=0){
+assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generate.=500,min.share=0){
   dataframe <- data
   # Code for assigning stocks
   names(dataframe) <- c("ship_ID","species","area","landkg")
