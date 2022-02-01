@@ -140,7 +140,7 @@ dend2 <- numberclust_dendrogram(catchdata = catchdata,
 dend3 <- numberclust_dendrogram(catchdata = catchdata, 
                                 dend_method = "range",
                                 range_min = .5,
-                                range_max = 9)+
+                                range_max = .8)+
   theme(axis.title.y = element_blank())
 
 # grid the dendrograms
