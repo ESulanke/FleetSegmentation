@@ -230,7 +230,9 @@ numberclust_plot <- function(catchdata,max_clusternumber=ifelse(nrow(catchdata)<
 
   #Dendrogramm#
   dend <- as.dendrogram(hc1_average)
-
+  if(any(dend_cut > 1 | range_max > 1 | range_min > 1 | dend_cut < 0 | range_max < 0 | range_min < 0 )){
+         stop("You have selected an invalid range limit or cutting height. Please make sure to select values between 0 and 1 for the arguments dend_cut, range_min, and range_max")
+  }
   if(dend_method == "basic"){
     dend <- dend %>% set("branches_lwd", 0.7)
     ggdend <- as.ggdend(dend)
@@ -318,7 +320,9 @@ numberclust_dendrogram <- function(catchdata, distance= "jaccard", method = "ave
   # perform clustering
   hc1_average <- hclust(distmat, method = method)
   dend <- as.dendrogram(hc1_average)
-
+  if(any(dend_cut > 1 | range_max > 1 | range_min > 1 | dend_cut < 0 | range_max < 0 | range_min < 0 )){
+    stop("You have selected an invalid range limit or cutting height. Please make sure to select values between 0 and 1 for the arguments dend_cut, range_min, and range_max")
+  }
   if(dend_method == "basic"){
     dend <- dend %>% set("branches_lwd", 0.7)
     ggdend <- as.ggdend(dend)
@@ -1231,7 +1235,7 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T){
 #' b) assessed by ICES, but caught out of stock-managed areas.
 #' The automatically generated stocks comprise the species name and the FAO area.
 #' The relevant quantity is defined by the argument threshold.auto.generate.
-#' @param threshold.auto.generate. Threshold of automatic generation of ICES stocks. Only relevant if auto.generate = T. Defaults to 500kg.
+#' @param threshold.auto.generate. Threshold of automatic generation of ICES stocks. Only relevant if auto.generate = T. Defaults to 5000.
 #' @param min.share The minimal share a stock has to have on at least one vessels catch to be included in the stock dataframe. Defaults to 0, i.e. every stock is retained by default.
 #' @keywords Stocks
 #' @export assign_stocks
