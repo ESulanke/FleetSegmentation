@@ -34,6 +34,7 @@ Depends:
     ade4,
     BBmisc,
     clustree,
+    plotly,
     networkD3,
     htmlwidgets,
     labdsv,
