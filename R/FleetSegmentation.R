@@ -1,4 +1,3 @@
-#' @import plotly
 #' @import knitr
 #' @import kableExtra
 #' @import RColorBrewer
