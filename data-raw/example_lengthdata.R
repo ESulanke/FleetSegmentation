@@ -2,3 +2,6 @@
 library(usethis)
 example_lengthdata <- read.csv("data-raw\\Shipdata_Example.csv",sep=";",dec=",")
 use_data(example_lengthdata, overwrite = TRUE)
+
+assemblage <- read.csv("data-raw\\assemblage.csv",sep = ";",dec = ",")
+use_data(assemblage, overwrite = TRUE)
