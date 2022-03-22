@@ -48,7 +48,7 @@ Depends:
     R (>= 2.10),
     rmarkdown,
     xfun,
-    tinytex
+    tinytex,
     withr
 Encoding: UTF-8
 LazyData: true
