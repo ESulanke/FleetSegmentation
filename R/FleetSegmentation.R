@@ -1129,6 +1129,7 @@ HHI_plot <- function(data, clustering){
 #' @param clustering The result of the clustering procedure, stored as a data frame.
 #' @param dim The dimensions of the MDS. Use `2` for a 2-dimensional, classic MDS and `3` for a 3-dimensional MDS.
 #' @param GoF Display goodness of fit in the MDS plot. Defaults to TRUE
+#' @param distance The distance measure used. Defaults to modified (metric conversion) Bray-Curtis distance distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!
 #' @keywords clustering
 #' @keywords MDS
 #' @export clustering_MDS
@@ -1139,7 +1140,7 @@ HHI_plot <- function(data, clustering){
 #' clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
 #' clustering_MDS(catchdata = catchdata,clustering = clustering, GoF=TRUE)
 #' clustering_MDS(catchdata = catchdata,clustering = clustering,dim = 3)
-clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T){
+clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T, distance="jaccard"){
   clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
   clusterlevels <- c()
   for (x in 1:clust_number) {
@@ -1152,7 +1153,7 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T){
   catchdata_clustering <- left_join(catchdata_clustering,clustering,by="ship_ID")
   suppressWarnings(
     mds <- catchdata %>%
-      stats::dist() %>%
+      vegdist(method = distance) %>%
       cmdscale() %>%
       as_tibble() %>%
       mutate(cluster = catchdata_clustering$cluster)%>%
@@ -1201,7 +1202,7 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T){
   if(dim==3){
     suppressWarnings(
       mds_3d <- catchdata %>%
-        stats::dist() %>%
+        vegdist(method = distance) %>%
         cmdscale(k = 3) %>%
         data.frame() %>%
         mutate(cluster = catchdata_clustering$cluster)%>%
