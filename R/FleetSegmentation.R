@@ -20,6 +20,7 @@
 #' @import ade4
 #' @import BBmisc
 #' @import clustree
+#' @import plotly
 #' @import networkD3
 #' @import htmlwidgets
 #' @import labdsv
@@ -1199,19 +1200,19 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T, distance="jaccard"
     }
   }
 
-#  if(dim==3){
-#    suppressWarnings(
-#      mds_3d <- catchdata %>%
-#        vegdist(method = distance) %>%
-#        cmdscale(k = 3) %>%
-#        data.frame() %>%
-#        mutate(cluster = catchdata_clustering$cluster)%>%
-#        mutate(eunr = catchdata_clustering$ship_ID)
-#    )
-#    suppressWarnings(colnames(mds_3d) <- c("Dim.1", "Dim.2","Dim.3","cluster","ship_ID"))
-#    options(warn = -1)
-#    return(suppressWarnings(plot_ly(data = mds_3d,x=~Dim.1, y=~Dim.2, z=~Dim.3, type="scatter3d",mode="markers",color = ~cluster,colors = mdspalette)))
-#  }
+  if(dim==3){
+    suppressWarnings(
+      mds_3d <- catchdata %>%
+        vegdist(method = distance) %>%
+        cmdscale(k = 3) %>%
+        data.frame() %>%
+        mutate(cluster = catchdata_clustering$cluster)%>%
+        mutate(eunr = catchdata_clustering$ship_ID)
+    )
+    suppressWarnings(colnames(mds_3d) <- c("Dim.1", "Dim.2","Dim.3","cluster","ship_ID"))
+    options(warn = -1)
+    return(suppressWarnings(plot_ly(data = mds_3d,x=~Dim.1, y=~Dim.2, z=~Dim.3, type="scatter3d",mode="markers",color = ~cluster,colors = mdspalette)))
+  }
 }
 
 #### 18) Assigning ICES-Stocks ####
