@@ -1394,8 +1394,8 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
   # get goodness of fit
   fit <- suppressWarnings(cmdscale(vegdist(catchdata,method=distance),T, k=2)) # k is the number of dim
   GOF <- fit$GOF[1]
-  GOF_x_pos <- max(mds.assemblage$Dim.1*.7)
-  GOF_y_pos <- max(mds.assemblage$Dim.2*.9)
+  GOF_x_pos <- max(mds.assemblage[1])*.7
+  GOF_y_pos <- max(mds.assemblage[2])*.9
   GOF_label <- paste("GoF =",round(GOF,digits = 2))
 
   ### mds
