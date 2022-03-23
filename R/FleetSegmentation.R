@@ -650,7 +650,7 @@ clustering_assemblageshares_plot <- function(data,clustering, min_share=5,label_
 
   assemblage_red <- assemblage %>%
     dplyr::select(species_code,target_assemblage_code,target_assemblage)
-
+suppressMessages(
   data <- data %>%
     mutate(species_code = toupper(sub("\\..*", "", stock))) %>%
     mutate(species_code = toupper(sub("\\-.*", "", species_code))) %>%
@@ -665,6 +665,7 @@ clustering_assemblageshares_plot <- function(data,clustering, min_share=5,label_
     group_by(cluster) %>%
     mutate(share_assemblage = catch_cluster/sum(catch_cluster)) %>%
     unique() %>% ungroup() %>% arrange(cluster, desc(share_assemblage))
+  )
 
   data$label <- data$target_assemblage_code
   data$label <- as.character(data$label)
@@ -1393,8 +1394,8 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
   # get goodness of fit
   fit <- suppressWarnings(cmdscale(vegdist(catchdata,method=distance),T, k=2)) # k is the number of dim
   GOF <- fit$GOF[1]
-  GOF_x_pos <- max(mds$Dim.1*.7)
-  GOF_y_pos <- max(mds$Dim.2*.9)
+  GOF_x_pos <- max(mds.assemblage$Dim.1*.7)
+  GOF_y_pos <- max(mds.assemblage$Dim.2*.9)
   GOF_label <- paste("GoF =",round(GOF,digits = 2))
 
   ### mds
