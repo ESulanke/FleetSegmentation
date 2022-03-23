@@ -8,7 +8,7 @@ assign_stocks(
   data,
   reduce = T,
   auto.generate = T,
-  threshold.auto.generate. = 5000,
+  threshold.auto.generate. = 500,
   min.share = 0
 )
 }

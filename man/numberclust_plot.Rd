@@ -11,8 +11,8 @@ numberclust_plot(
   method = "average",
   dend_method = "basic",
   dend_cut = 0.75,
-  range_min = 0.5,
-  range_max = 1
+  range_min = 0.4,
+  range_max = 0.8
 )
 }
 \arguments{
