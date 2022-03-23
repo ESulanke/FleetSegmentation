@@ -702,9 +702,7 @@ clustering_assemblageshares_plot <- function(data,clustering, min_share=5,label_
                                                                                            "#923e4d", "#632345", "#34073d")), labels = c("very high (> 75%)",
                                                                                                                                          "high (50-75%)", "medium (25-50%)", "low (10-25%)",
                                                                                                                                          "minimal (< 10%)"), guide = guide_legend(reverse = TRUE)) +
-      geom_label(data = data[data$share_assemblage > (min_share/100),
-      ], aes(cluster, (cum_share - 0.5 * share_assemblage),
-             label = str_wrap(label, width = label_wrap)),
+      geom_label(data = data[data$share_assemblage > (min_share/100),], aes(cluster, (cum_share - 0.5 * share_assemblage),label = str_wrap(label, width = label_wrap)),
       size = 4, color = "black", fill = "white") +
       theme_bw() + theme(axis.title.x = element_blank(),
                          axis.title.y = element_text(face = "bold", size = 12),
@@ -720,14 +718,12 @@ clustering_assemblageshares_plot <- function(data,clustering, min_share=5,label_
   if(display_cluster_size==T){
     assemblage_plot <- ggplot() + geom_col(data = data, aes(cluster,
                                                             share_assemblage, fill = share_level), position = "fill",
-                                           colour = "black") + scale_fill_manual(values = rev(c("#ef745c", "#c15955",
-                                                                                                "#923e4d", "#632345", "#34073d")), labels = c("very high (> 75%)",
-                                                                                                                                              "high (50-75%)", "medium (25-50%)", "low (10-25%)",
-                                                                                                                                              "minimal (< 10%)"), guide = guide_legend(reverse = TRUE)) +
-      geom_label(data = data[data$share_assemblage > (min_share/100),
-      ], aes(cluster, (cum_share - 0.5 * share_assemblage),
+                                           colour = "black") +
+      scale_fill_manual(values = rev(c("#ef745c", "#c15955","#923e4d", "#632345", "#34073d")), labels = c("very high (> 75%)","high (50-75%)", "medium (25-50%)", "low (10-25%)",                                                                                                                              "minimal (< 10%)"), guide = guide_legend(reverse = TRUE)) +
+      geom_label(data = data[data$share_assemblage > (min_share/100),], aes(cluster, (cum_share - 0.5 * share_assemblage),
              label = str_wrap(label, width = label_wrap)),
       size = 4, color = "black", fill = "white") +
+      geom_text(data=n_vessel, aes(cluster,1.1,label=n_vessel),size=4,show.legend = F)+
       theme_minimal() +
       theme(axis.title.x = element_blank(),axis.title.y = element_text(face="bold",size=12),
             legend.position = "bottom",legend.title = element_blank(),
@@ -1350,6 +1346,7 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T, distance="jaccard"
 #' @description This is function creates an MDS of the assemblage-based catches of the clustering result. The MDS can be either 2-dimensional (which is the default setting), or 3-dimensional.
 #' 3-dimensional MDS are harder to interpret, but due to the nature of compositional catch data, 2-dimensional MDS often have a poor goodness of fit (GoF) and have to be treated with caution.
 #' @param data The original, untransformed data that was used for the clustering.
+#' @param catchdata The transformed catchdata created with catchdata_transformation()
 #' @param clustering The result of the clustering procedure, stored as a data frame.
 #' @param dim The dimensions of the MDS. Use `2` for a 2-dimensional, classic MDS and `3` for a 3-dimensional MDS.
 #' @param GoF Display goodness of fit in the MDS plot. Defaults to TRUE
@@ -1364,7 +1361,7 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T, distance="jaccard"
 #' clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
 #' clustering_MDS(catchdata = catchdata,clustering = clustering, GoF=TRUE)
 #' clustering_MDS(catchdata = catchdata,clustering = clustering,dim = 3)
-cluster_assemblages_MDS <- function(data,clustering, interactive=F,GoF=T, distance="jaccard"){
+cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF=T, distance="jaccard"){
 
   assemblage <- data %>%
     mutate(species_code = toupper(sub("\\..*", "", stock))) %>%
