@@ -617,7 +617,137 @@ clustering_stockshares_plot <- function(data,clustering, min_share=5,label_wrap=
 }
 
 
-##### 9) Plot stock shares of single cluster ####
+##### 9) Plot assemblage shares of clusters ####
+#' @title Plot assemblage shares of clusters
+#'
+#' @description This is function creates an overview barplot of the average shares of stocks on the catch of each clusters vessels.
+#' @param data The original, untransformed data that was used for the clustering.
+#' @param clustering The result of the clustering procedure, stored as a data frame.
+#' @param min_share The minimum average percentage share a stock has to have to be labelled in the plot. Defaults to 5\%.
+#' @param label_wrap Indicates the number of characters per line before a line break in the stock labels. Defaults to 6.
+#' @param display_cluster_size Indicates, whether the number of vessels in each cluster should be displayed in the plot. Defaults to FALSE.
+#' @keywords clustering
+#' @keywords plot
+#' @keywords assemblage
+#' @export clustering_assemblageshares_plot
+#' @examples
+#' data <- example_catchdata
+#' stockdata <- assign_stocks(data=data)
+#' catchdata <- catchdata_transformation(data = stockdata)
+#' clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
+#' clustering_assemblageshares_plot(data = stockdata,clustering = clustering)
+#' clustering_assemblageshares_plot(data = stockdata,clustering = clustering,
+#' min_share=10,label_wrap=10, display_cluster_size=TRUE)
+clustering_assemblageshares_plot <- function(data,clustering, min_share=5,label_wrap=6, display_cluster_size=F){
+  names(data) <- c("ship_ID", "stock", "landings")
+  clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
+  clusterlevels <- c()
+  for (x in 1:clust_number) {
+    levels <- as.vector(c(paste("cluster", x)))
+    clusterlevels <- c(clusterlevels, levels)
+  }
+  clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
+
+  assemblage_red <- assemblage %>%
+    dplyr::select(species_code,target_assemblage_code,target_assemblage)
+
+  data <- data %>%
+    mutate(species_code = toupper(sub("\\..*", "", stock))) %>%
+    mutate(species_code = toupper(sub("\\-.*", "", species_code))) %>%
+    left_join(assemblage_red) %>%
+    mutate(target_assemblage_code = ifelse(species_code == "NEP", "CRU",target_assemblage_code),
+           target_assemblage = ifelse(species_code == "NEP", "Crustaceans",target_assemblage),
+           target_assemblage_code = replace_na(target_assemblage_code,"UNK"),
+           target_assemblage = replace_na(target_assemblage, "unknown")) %>%
+    left_join(clustering) %>%
+    group_by(cluster,target_assemblage_code) %>%
+    summarise(catch_cluster = sum(landings)) %>%
+    group_by(cluster) %>%
+    mutate(share_assemblage = catch_cluster/sum(catch_cluster)) %>%
+    unique() %>% ungroup() %>% arrange(cluster, desc(share_assemblage))
+
+  data$label <- data$target_assemblage_code
+  data$label <- as.character(data$label)
+  data$label[data$share_assemblage < (min_share/100)] <- " "
+  data$label <- as.factor(data$label)
+  clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
+  clusterlevels <- c()
+  for (x in 1:clust_number) {
+    levels <- as.vector(c(paste("cluster", x)))
+    clusterlevels <- c(clusterlevels, levels)
+  }
+  data$cluster <- factor(data$cluster, levels = rev(clusterlevels))
+  data <- data %>% arrange(share_assemblage, cluster)
+
+  data$share_level <- "minimal"
+  data$share_level[data$share_assemblage > 0.1] <- "low"
+  data$share_level[data$share_assemblage > 0.25] <- "medium"
+  data$share_level[data$share_assemblage > 0.5] <- "high"
+  data$share_level[data$share_assemblage > 0.75] <- "very high"
+  data$share_level <- factor(data$share_level, levels = c("very high",
+                                                          "high", "medium", "low", "minimal"))
+  data <- data %>% group_by(cluster) %>% mutate(cum_share = cumsum(share_assemblage)) %>%
+    ungroup() %>% arrange(cluster, share_level, share_assemblage)
+  data$label <- gsub("_", " ", data$label)
+  n_vessel <- clustering %>% group_by(cluster) %>% summarise(n_vessel = n_distinct(ship_ID))
+  n_vessel$cluster <- factor(n_vessel$cluster, levels = rev(clusterlevels))
+
+  n_vessel <- clustering %>% group_by(cluster) %>% summarise(n_vessel = n_distinct(ship_ID))
+  n_vessel$cluster <- factor(n_vessel$cluster, levels = rev(clusterlevels))
+
+  if(display_cluster_size==F){
+    assemblage_plot <- ggplot() + geom_col(data = data, aes(cluster,
+                                                       share_assemblage, fill = share_level), position = "fill",
+                                      colour = "black") + scale_fill_manual(values = rev(c("#ef745c", "#c15955",
+                                                                                           "#923e4d", "#632345", "#34073d")), labels = c("very high (> 75%)",
+                                                                                                                                         "high (50-75%)", "medium (25-50%)", "low (10-25%)",
+                                                                                                                                         "minimal (< 10%)"), guide = guide_legend(reverse = TRUE)) +
+      geom_label(data = data[data$share_assemblage > (min_share/100),
+      ], aes(cluster, (cum_share - 0.5 * share_assemblage),
+             label = str_wrap(label, width = label_wrap)),
+      size = 4, color = "black", fill = "white") +
+      theme_bw() + theme(axis.title.x = element_blank(),
+                         axis.title.y = element_text(face = "bold", size = 12),
+                         legend.position = "bottom", legend.title = element_blank(),
+                         plot.margin = unit(c(5.5, 30, 5.5, 5.5), "points"),
+                         legend.text = element_text(size = 10), axis.text.y = element_text(size = 8)) +
+      scale_y_continuous(labels = percent, expand = c(0,
+                                                      0), breaks = c(0.25, 0.5, 0.75, 1), limits = c(0,
+                                                                                                     1)) +
+      scale_x_discrete(labels = rev(seq(1, clust_number,1))) +
+      coord_flip()
+  }
+  if(display_cluster_size==T){
+    assemblage_plot <- ggplot() + geom_col(data = data, aes(cluster,
+                                                            share_assemblage, fill = share_level), position = "fill",
+                                           colour = "black") + scale_fill_manual(values = rev(c("#ef745c", "#c15955",
+                                                                                                "#923e4d", "#632345", "#34073d")), labels = c("very high (> 75%)",
+                                                                                                                                              "high (50-75%)", "medium (25-50%)", "low (10-25%)",
+                                                                                                                                              "minimal (< 10%)"), guide = guide_legend(reverse = TRUE)) +
+      geom_label(data = data[data$share_assemblage > (min_share/100),
+      ], aes(cluster, (cum_share - 0.5 * share_assemblage),
+             label = str_wrap(label, width = label_wrap)),
+      size = 4, color = "black", fill = "white") +
+      theme_bw() + theme(axis.title.x = element_blank(),
+                         axis.title.y = element_text(face = "bold", size = 12),
+                         legend.position = "bottom", legend.title = element_blank(),
+                         plot.margin = unit(c(5.5, 30, 5.5, 5.5), "points"),
+                         legend.text = element_text(size = 10), axis.text.y = element_text(size = 8)) +
+      geom_text(data=n_vessel, aes(cluster,1.1,label=n_vessel),size=4,show.legend = F)+
+      scale_y_continuous(labels = percent, expand = c(0,
+                                                      0), breaks = c(0.25, 0.5, 0.75, 1), limits = c(0,
+                                                                                                     1))+
+      scale_x_discrete(labels = rev(seq(1, clust_number,1))) +
+      coord_flip()
+
+    }
+  assemblage_plot
+
+}
+
+
+
+##### 10) Plot stock shares of single cluster ####
 #' @title Plot stock shares of clusters
 #'
 #' @description This is function creates an overview barplot of the average shares of stocks on the catch of all the vessels in one cluster.
@@ -696,7 +826,7 @@ single_cluster_stockshares <- function(data,clustering, min_share=5,cluster.numb
 }
 
 
-##### 10) Plot number of ships in clusters ####
+##### 11) Plot number of ships in clusters ####
 #' @title Plot number of ships in clusters
 #'
 #' @description This is function creates an overview plot of the number of ships in each cluster.
@@ -738,7 +868,7 @@ cluster_size_plot <- function(clustering){
   cluster_size_plot
 }
 
-##### 11) Plot length of ships in clusters ####
+##### 12) Plot length of ships in clusters ####
 #' @title Plot length of ships in clusters
 #'
 #' @description This is function creates an overview mixed dot- and boxplot of the length of the ships in each cluster. The length can be given in cm or m, the function will auto-transform from cm to m.
@@ -787,7 +917,7 @@ shiplength_plot <- function(clustering,shiplength){
 }
 
 
-#### 12) Plot catch of single ships in clusters ####
+#### 13) Plot catch of single ships in clusters ####
 #' @title Plot of catch of single ships in clusters
 #'
 #' @description This is function creates an overview mixed box- and dotplot of the catch of single ships in each cluster. A boxplot will only be drawn for clusters containing more than 5 ships.
@@ -837,7 +967,7 @@ singleship_catch_plot <- function(data, clustering){
   singleships_tons_plot
 }
 
-#### 13) Catch of all ships in cluster ####
+#### 14) Catch of all ships in cluster ####
 #' @title Plot of total catch of ships in clusters
 #'
 #' @description This is function creates an overview barplot of the total catch of all ships in each cluster.
@@ -882,7 +1012,7 @@ clustercatch_plot <- function(data, clustering){
   cluster_tons_plot
 }
 
-##### 14) Grid of shiplength and catch plots ####
+##### 15) Grid of shiplength and catch plots ####
 #' @title Plotgrid of number of ships, ship length, catch of single ships and total catch of ships in clusters
 #'
 #' @description This is function creates an overview plot grid of
@@ -995,7 +1125,7 @@ clustering_plotgrid <- function(data,clustering,shiplength){
 }
 
 
-#### 15) Tabelize HHI of catch ####
+#### 16) Tabelize HHI of catch ####
 #' @title Table of HHI of  overall catch of clusters.
 #'
 #' @description This function creates an overview table of the Herfindahl-Hirschmann Index (HHI) of the catch clusters. The HHI is equivalent to the Simpson Index,
@@ -1058,7 +1188,7 @@ HHI_table <-  function(data, clustering,style="basic"){
   }
 
 }
-#### 16) Plot HHI of catch ####
+#### 17) Plot HHI of catch ####
 #' @title Mixed box- and dotplot of Herfindahl-Hirschmann Index (HHI) of catch of single ships and overall catch of clusters.
 #'
 #' @description This function creates a mixed box- and dotplot of the HHI of the catch of 1) single ships and 2) clusters. The HHI is equivalent to the Simpson Index,
@@ -1121,7 +1251,7 @@ HHI_plot <- function(data, clustering){
   HHI_plot
 }
 
-#### 17) MDS of clustering ####
+#### 18) MDS of clustering ####
 #' @title Multi-dimensional scaling (MDS) of the clustering
 #'
 #' @description This is function creates an MDS of the clustering result. The MDS can be either 2-dimensional (which is the default setting), or 3-dimensional.
@@ -1176,7 +1306,7 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T, distance="jaccard"
   mds_midpoints_cluster$cluster_nr <- as.numeric(gsub("cluster ", "", mds_midpoints_cluster$cluster))
 
   # get goodness of fit
-  fit <- suppressWarnings(cmdscale(dist(catchdata),T, k=2)) # k is the number of dim
+  fit <- suppressWarnings(cmdscale(vegdist(catchdata,distance="jaccard"),T, k=2)) # k is the number of dim
   GOF <- fit$GOF[1]
   GOF_x_pos <- max(mds$Dim.1*.7)
   GOF_y_pos <- max(mds$Dim.2*.9)
@@ -1215,7 +1345,80 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T, distance="jaccard"
   }
 }
 
-#### 18) Assigning ICES-Stocks ####
+#### 19) MDS of cluster assemblages ####
+#' @title Multi-dimensional scaling (MDS) of the assemblage-based cluster catches
+#'
+#' @description This is function creates an MDS of the assemblage-based catches of the clustering result. The MDS can be either 2-dimensional (which is the default setting), or 3-dimensional.
+#' 3-dimensional MDS are harder to interpret, but due to the nature of compositional catch data, 2-dimensional MDS often have a poor goodness of fit (GoF) and have to be treated with caution.
+#' @param catchdata The transformed catchdata created with catchdata_transformation()
+#' @param clustering The result of the clustering procedure, stored as a data frame.
+#' @param dim The dimensions of the MDS. Use `2` for a 2-dimensional, classic MDS and `3` for a 3-dimensional MDS.
+#' @param GoF Display goodness of fit in the MDS plot. Defaults to TRUE
+#' @param distance The distance measure used. Defaults to modified (metric conversion) Bray-Curtis distance distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!
+#' @keywords clustering
+#' @keywords MDS
+#' @export cluster_assemblages_MDS
+#' @examples
+#' data <- example_catchdata
+#' stockdata <- assign_stocks(data=data)
+#' catchdata <- catchdata_transformation(data = stockdata)
+#' clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
+#' clustering_MDS(catchdata = catchdata,clustering = clustering, GoF=TRUE)
+#' clustering_MDS(catchdata = catchdata,clustering = clustering,dim = 3)
+cluster_assemblages_MDS <- function(catchdata,clustering, interactive=F,GoF=T, distance="jaccard"){
+
+  assemblage <- catchdata %>%
+    mutate(species_code = toupper(sub("\\..*", "", stock))) %>%
+    mutate(species_code = toupper(sub("\\-.*", "", species_code))) %>%
+    left_join(assemblage_red) %>%
+    mutate(target_assemblage_code = ifelse(species_code == "NEP", "CRU",target_assemblage_code),
+           target_assemblage = ifelse(species_code == "NEP", "Crustaceans",target_assemblage),
+           target_assemblage_code = replace_na(target_assemblage_code,"UNK"),
+           target_assemblage = replace_na(target_assemblage, "unknown")) %>%
+    left_join(clustering) %>%
+    group_by(cluster,target_assemblage_code) %>%
+    summarise(catch_cluster = sum(landings)) %>%
+    group_by(cluster) %>%
+    mutate(share_assemblage = catch_cluster/sum(catch_cluster)) %>%
+    ungroup()
+
+  assemblage_matrix <- assemblage %>%
+    dplyr::select(cluster,target_assemblage_code,share_assemblage) %>%
+    pivot_wider(names_from = target_assemblage_code,values_from = share_assemblage,values_fill = 0)%>%
+    ungroup()
+
+  assemblage_table <- as.data.frame(assemblage_matrix)
+  assemblage_table <- assemblage_table[,-1]
+  rownames(assemblage_table) <- assemblage_matrix$cluster
+
+  mds.assemblage <- cmdscale(vegdist(x = assemblage_table,method = distance)) %>% as.data.frame()
+  mds.assemblage$names <- rownames(mds.assemblage)
+
+  # get goodness of fit
+  fit <- suppressWarnings(cmdscale(vegdist(catchdata,method=distance),T, k=2)) # k is the number of dim
+  GOF <- fit$GOF[1]
+  GOF_x_pos <- max(mds$Dim.1*.7)
+  GOF_y_pos <- max(mds$Dim.2*.9)
+  GOF_label <- paste("GoF =",round(GOF,digits = 2))
+
+  ### mds
+  assemblage_mds <- ggplot(mds.assemblage, aes(V1, V2, label=names)) +
+    geom_point(colour="black",fill="#B1D0E8", size=4,shape=22) +
+    geom_text(colour="blue", check_overlap = TRUE, size=2.5,
+              hjust = "center", vjust = "bottom", nudge_x = 0, nudge_y = 0.025) +
+    theme_minimal()+
+    theme(axis.title = element_blank())
+
+  if(GoF==T){
+    return(assemblage_mds + geom_label(data=tibble(),aes(GOF_x_pos,GOF_y_pos,label=GOF_label),colour="black",size=4,fontface="bold", alpha=.5))
+  }
+  else{
+    return(assemblage_mds)
+  }
+}
+
+
+#### 20) Assigning ICES-Stocks ####
 #' @title Function to assign ICES stocks to data.
 #'
 #' @description This function assigns ICES stocks to catch data based on the caught species and the FAO fishing area where it was caught.
