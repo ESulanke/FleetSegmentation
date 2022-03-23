@@ -728,16 +728,15 @@ clustering_assemblageshares_plot <- function(data,clustering, min_share=5,label_
       ], aes(cluster, (cum_share - 0.5 * share_assemblage),
              label = str_wrap(label, width = label_wrap)),
       size = 4, color = "black", fill = "white") +
-      theme_bw() + theme(axis.title.x = element_blank(),
-                         axis.title.y = element_text(face = "bold", size = 12),
-                         legend.position = "bottom", legend.title = element_blank(),
-                         plot.margin = unit(c(5.5, 30, 5.5, 5.5), "points"),
-                         legend.text = element_text(size = 10), axis.text.y = element_text(size = 8)) +
-      geom_text(data=n_vessel, aes(cluster,1.1,label=n_vessel),size=4,show.legend = F)+
-      scale_y_continuous(labels = percent, expand = c(0,
-                                                      0), breaks = c(0.25, 0.5, 0.75, 1), limits = c(0,
-                                                                                                     1))+
-      scale_x_discrete(labels = rev(seq(1, clust_number,1))) +
+      theme_minimal() +
+      theme(axis.title.x = element_blank(),axis.title.y = element_text(face="bold",size=12),
+            legend.position = "bottom",legend.title = element_blank(),
+            plot.margin=unit(c(5.5,30,5.5,5.5),"points"), legend.text = element_text(size = 10),
+            axis.text.y = element_text(size=8),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank())+
+      scale_y_continuous(labels=percent, expand = c(0, 0),breaks = c(.25,.50,.75,1),limits = c(0,1.2))+
+      scale_x_discrete(labels=rev(seq(1,clust_number,1)))+
       coord_flip()
 
     }
@@ -1350,7 +1349,7 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T, distance="jaccard"
 #'
 #' @description This is function creates an MDS of the assemblage-based catches of the clustering result. The MDS can be either 2-dimensional (which is the default setting), or 3-dimensional.
 #' 3-dimensional MDS are harder to interpret, but due to the nature of compositional catch data, 2-dimensional MDS often have a poor goodness of fit (GoF) and have to be treated with caution.
-#' @param catchdata The transformed catchdata created with catchdata_transformation()
+#' @param data The original, untransformed data that was used for the clustering.
 #' @param clustering The result of the clustering procedure, stored as a data frame.
 #' @param dim The dimensions of the MDS. Use `2` for a 2-dimensional, classic MDS and `3` for a 3-dimensional MDS.
 #' @param GoF Display goodness of fit in the MDS plot. Defaults to TRUE
@@ -1365,9 +1364,9 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T, distance="jaccard"
 #' clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
 #' clustering_MDS(catchdata = catchdata,clustering = clustering, GoF=TRUE)
 #' clustering_MDS(catchdata = catchdata,clustering = clustering,dim = 3)
-cluster_assemblages_MDS <- function(catchdata,clustering, interactive=F,GoF=T, distance="jaccard"){
+cluster_assemblages_MDS <- function(data,clustering, interactive=F,GoF=T, distance="jaccard"){
 
-  assemblage <- catchdata %>%
+  assemblage <- data %>%
     mutate(species_code = toupper(sub("\\..*", "", stock))) %>%
     mutate(species_code = toupper(sub("\\-.*", "", species_code))) %>%
     left_join(assemblage_red) %>%
