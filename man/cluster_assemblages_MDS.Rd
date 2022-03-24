@@ -5,6 +5,7 @@
 \title{Multi-dimensional scaling (MDS) of the assemblage-based cluster catches}
 \usage{
 cluster_assemblages_MDS(
+  data,
   catchdata,
   clustering,
   interactive = F,
@@ -13,6 +14,8 @@ cluster_assemblages_MDS(
 )
 }
 \arguments{
+\item{data}{The original, untransformed data that was used for the clustering.}
+
 \item{catchdata}{The transformed catchdata created with catchdata_transformation()}
 
 \item{clustering}{The result of the clustering procedure, stored as a data frame.}
@@ -32,8 +35,7 @@ data <- example_catchdata
 stockdata <- assign_stocks(data=data)
 catchdata <- catchdata_transformation(data = stockdata)
 clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
-clustering_MDS(catchdata = catchdata,clustering = clustering, GoF=TRUE)
-clustering_MDS(catchdata = catchdata,clustering = clustering,dim = 3)
+cluster_assemblages_MDS(data =data, catchdata = catchdata,clustering = clustering, GoF=TRUE)
 }
 \keyword{MDS}
 \keyword{clustering}

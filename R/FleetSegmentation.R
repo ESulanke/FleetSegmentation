@@ -1360,8 +1360,7 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T, distance="jaccard"
 #' stockdata <- assign_stocks(data=data)
 #' catchdata <- catchdata_transformation(data = stockdata)
 #' clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
-#' clustering_MDS(catchdata = catchdata,clustering = clustering, GoF=TRUE)
-#' clustering_MDS(catchdata = catchdata,clustering = clustering,dim = 3)
+#' cluster_assemblages_MDS(data =data, catchdata = catchdata,clustering = clustering, GoF=TRUE)
 cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF=T, distance="jaccard"){
 
   assemblage <- data %>%
@@ -1437,7 +1436,7 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
 #' b) assessed by ICES, but caught out of stock-managed areas.
 #' The automatically generated stocks comprise the species name and the FAO area.
 #' The relevant quantity is defined by the argument threshold.auto.generate.
-#' @param threshold.auto.generate. Threshold of automatic generation of ICES stocks. Only relevant if auto.generate = T. Defaults to 5000.
+#' @param threshold.auto.generate Threshold of automatic generation of ICES stocks. Only relevant if auto.generate = T. Defaults to 100.
 #' @param min.share The minimal share a stock has to have on at least one vessels catch to be included in the stock dataframe. Defaults to 0, i.e. every stock is retained by default.
 #' @keywords Stocks
 #' @export assign_stocks
@@ -1445,7 +1444,7 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
 #' data <- example_catchdata
 #' stockdata <- assign_stocks(data=data)
 #' stockdata <- assign_stocks(data=data, reduce=FALSE, auto.generate=FALSE)
-assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generate.=500,min.share=0){
+assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generate=100,min.share=0){
   dataframe <- data
   # Code for assigning stocks
   names(dataframe) <- c("ship_ID","species","area","landkg")
@@ -3379,5 +3378,73 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
 
 
   suppressWarnings(return(dataframe_red))
+}
+
+
+
+#### 21) Data preparation function ####
+#' @title Function to automatically separate a fleet data frame by gear class and assign ICES and ICCAT stocks.
+#'
+#' @description This function separates given fleet data by gear class and creates separate, conveniently named and ready-to-use data frames.
+#' It also assigns ICES stocks to catch data based on the caught species and the FAO fishing area where it was caught.
+#' Due to limits in available data, especially on a fine spatial resolution, not all ICES-stocks can be taken into account. Therefore, stocks of Nephrops norvegicus
+#' and Ammodytes spp. are based on EU definitions, not on ICES definitions. Additionally, the function automatically creates stocks based on species name and FAO area for species
+#' which are caught in larger quantities (> 100 kg) but are not part of defined ICES-stock. This feature can be shut off if the user decides not to apply the procedure and
+#' use only defined ICES-stocks.
+#' @param fleetdata The underlying fleet data frame. With the following arguments, the columns are specified
+#' @param vessel_ID The unquoted name of the column containing the vessel identifier
+#' @param shiplength The unquoted name of the column containing the length of the vessel in m
+#' @param gear The unquoted name of the column containing the code for the gear class
+#' @param species The unquoted name of the column containing the three-digit code for the species caught
+#' @param area The unquoted name of the column containing the code for the area in ICES/FAO coding (e.g., 27.4.a or GSA 16)
+#' @param catch The unquoted name of the column containing the catch in kg
+#' @param reduce Indicates, whether or not the resulting data frame is reduced to Ship ID, ICES stock and catch weight. Defaults to TRUE.
+#' Turned to FALSE, the resulting data frame will resemble the original data with the ICES-Stock column added. This format is used for control and correction purposes,
+#' but not for further calculations.
+#' @param auto.generate Indicates whether or stocks should be automatically generated for
+#' a) species, which are not assessed in ICES-Stocks or
+#' b) assessed by ICES, but caught out of stock-managed areas.
+#' The automatically generated stocks comprise the species name and the FAO area.
+#' The relevant quantity is defined by the argument threshold.auto.generate.
+#' @param threshold.auto.generate Threshold of automatic generation of ICES stocks. Only relevant if auto.generate = T. Defaults to 100.
+#' @param min.share The minimal share a stock has to have on at least one vessels catch to be included in the stock dataframe. Defaults to 0, i.e. every stock is retained by default.
+#' @keywords data preparation
+#' @export segmentation_datapreparation
+#' @examples
+#' segmentation_datapreparation(data = fleet_exmpl,
+#'                               vessel_ID = ship_ID,
+#'                               shiplength = loa,
+#'                               gear = main_gear,
+#'                               species = spec_code,
+#'                               area = fao_area,
+#'                               catch = landkg)
+
+segmentation_datapreparation <- function(fleetdata,vessel_ID,shiplength, gear,species,area,catch,
+                                         reduce=T,auto.generate=T,threshold.auto.generate=100, min.share=0){
+  shiplength <<- fleetdata %>%
+    dplyr::select({{vessel_ID}},{{shiplength}})  %>%
+    rename(vessel_ID = {{vessel_ID}}, shiplength = {{shiplength}}) %>%
+    unique()
+
+  data$gear <- as.factor(data$gear)
+
+  suppressMessages(
+    data_red <- data %>%
+      group_by({{vessel_ID}},{{gear}},{{species}},{{area}}) %>%
+      summarise(landings = sum({{catch}})) %>%
+      ungroup())
+  suppressMessages(
+    for (i in seq_along(levels(data$gear)))   {
+      data_split <- data_red %>%
+        group_split({{gear}},.keep = F)
+      temp <- data_split[[i]]
+      tempII <- assign_stocks(temp, reduce = reduce, auto.generate = auto.generate,
+                              threshold.auto.generate = threshold.auto.generate, min.share = min.share)
+      assign(levels(data$gear)[i],tempII,.GlobalEnv)
+      remove(temp,tempII)
+    }
+  )
+  cat(str_to_title(numbers_to_words(n_distinct(data$gear))),"gear class dataframes and a shiplength dataframe have been created.")
+
 }
 

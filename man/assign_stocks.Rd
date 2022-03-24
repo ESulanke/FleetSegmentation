@@ -8,7 +8,7 @@ assign_stocks(
   data,
   reduce = T,
   auto.generate = T,
-  threshold.auto.generate. = 500,
+  threshold.auto.generate = 100,
   min.share = 0
 )
 }
@@ -30,7 +30,7 @@ b) assessed by ICES, but caught out of stock-managed areas.
 The automatically generated stocks comprise the species name and the FAO area.
 The relevant quantity is defined by the argument threshold.auto.generate.}
 
-\item{threshold.auto.generate.}{Threshold of automatic generation of ICES stocks. Only relevant if auto.generate = T. Defaults to 5000.}
+\item{threshold.auto.generate}{Threshold of automatic generation of ICES stocks. Only relevant if auto.generate = T. Defaults to 100.}
 
 \item{min.share}{The minimal share a stock has to have on at least one vessels catch to be included in the stock dataframe. Defaults to 0, i.e. every stock is retained by default.}
 }
