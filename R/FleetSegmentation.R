@@ -1435,7 +1435,7 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
 #' a) species, which are not assessed in ICES-Stocks or
 #' b) assessed by ICES, but caught out of stock-managed areas.
 #' The automatically generated stocks comprise the species name and the FAO area.
-#' The relevant quantity is defined by the argument threshold.auto.generate.
+#' The relevant quantity is defined by the argument threshold.auto.generate
 #' @param threshold.auto.generate Threshold of automatic generation of ICES stocks. Only relevant if auto.generate = T. Defaults to 100.
 #' @param min.share The minimal share a stock has to have on at least one vessels catch to be included in the stock dataframe. Defaults to 0, i.e. every stock is retained by default.
 #' @keywords Stocks
@@ -3314,7 +3314,7 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
       group_by(species,major.area, stock) %>%
       mutate(total_landings = sum(landings)) %>%
       ungroup()
-    unknowns <- dplyr::filter(dataframe_red_I, stock == "Bycatch/Unknown" & total_landings >= threshold.auto.generate.)
+    unknowns <- dplyr::filter(dataframe_red_I, stock == "Bycatch/Unknown" & total_landings >= threshold.auto.generate)
     unknowns$species_lower <- tolower(unknowns$species)
     unknowns$area_red <- NA
     unknowns$area_red[unknowns$area %in% unique(grep(paste0("GSA"),unknowns$area,value = T))] <-strtrim(unknowns$area[unknowns$area %in% unique(grep(paste0("GSA"),unknowns$area,value = T))], 6)
@@ -3348,7 +3348,7 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
       group_by(species,major.area, stock) %>%
       mutate(total_landings = sum(landings)) %>%
       ungroup()
-    unknowns <- dplyr::filter(dataframe_red_I, stock == "Bycatch/Unknown" & total_landings >= threshold.auto.generate.)
+    unknowns <- dplyr::filter(dataframe_red_I, stock == "Bycatch/Unknown" & total_landings >= threshold.auto.generate)
     unknowns$species_lower <- tolower(unknowns$species)
     unknowns$area_red <- NA
     unknowns$area_red[unknowns$area %in% unique(grep(paste0("GSA"),unknowns$area,value = T))] <-strtrim(unknowns$area[unknowns$area %in% unique(grep(paste0("GSA"),unknowns$area,value = T))], 6)
@@ -3405,7 +3405,7 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
 #' a) species, which are not assessed in ICES-Stocks or
 #' b) assessed by ICES, but caught out of stock-managed areas.
 #' The automatically generated stocks comprise the species name and the FAO area.
-#' The relevant quantity is defined by the argument threshold.auto.generate.
+#' The relevant quantity is defined by the argument threshold.auto.generate
 #' @param threshold.auto.generate Threshold of automatic generation of ICES stocks. Only relevant if auto.generate = T. Defaults to 100.
 #' @param min.share The minimal share a stock has to have on at least one vessels catch to be included in the stock dataframe. Defaults to 0, i.e. every stock is retained by default.
 #' @keywords data preparation
