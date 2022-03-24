@@ -56,13 +56,13 @@ which are caught in larger quantities (> 100 kg) but are not part of defined ICE
 use only defined ICES-stocks.
 }
 \examples{
-segmentation_datapreparation(data = fleet_exmpl,
+segmentation_datapreparation(data = example_fleetdata,
                               vessel_ID = ship_ID,
-                              shiplength = loa,
-                              gear = main_gear,
-                              species = spec_code,
+                              shiplength = shiplength,
+                              gear = gear,
+                              species = species,
                               area = fao_area,
-                              catch = landkg)
+                              catch = landings)
 }
 \keyword{data}
 \keyword{preparation}

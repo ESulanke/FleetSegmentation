@@ -3411,13 +3411,13 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
 #' @keywords data preparation
 #' @export segmentation_datapreparation
 #' @examples
-#' segmentation_datapreparation(data = fleet_exmpl,
+#' segmentation_datapreparation(data = example_fleetdata,
 #'                               vessel_ID = ship_ID,
-#'                               shiplength = loa,
-#'                               gear = main_gear,
-#'                               species = spec_code,
+#'                               shiplength = shiplength,
+#'                               gear = gear,
+#'                               species = species,
 #'                               area = fao_area,
-#'                               catch = landkg)
+#'                               catch = landings)
 
 segmentation_datapreparation <- function(fleetdata,vessel_ID,shiplength, gear,species,area,catch,
                                          reduce=T,auto.generate=T,threshold.auto.generate=100, min.share=0){
