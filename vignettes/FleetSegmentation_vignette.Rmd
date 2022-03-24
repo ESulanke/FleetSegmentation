@@ -371,8 +371,8 @@ Final remark: The example dataset included in this package is purely fictional a
 This is the package installation code for all the packages you need to make the FS-package work. Simply start a new R-session outside any project and run this code to your console prior to installing the FS-package from the .zip-file.
 
 ```{r , eval=F, echo=T}
-install.packages(c("plotly",
-  "knitr",
+install.packages(c("knitr",
+  "plotly",                 
   "kableExtra",
   "RColorBrewer",
   "dplyr",
