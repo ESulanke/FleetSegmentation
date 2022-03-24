@@ -28,7 +28,7 @@ but not for further calculations.}
 a) species, which are not assessed in ICES-Stocks or
 b) assessed by ICES, but caught out of stock-managed areas.
 The automatically generated stocks comprise the species name and the FAO area.
-The relevant quantity is defined by the argument threshold.auto.generate.}
+The relevant quantity is defined by the argument threshold.auto.generate}
 
 \item{threshold.auto.generate}{Threshold of automatic generation of ICES stocks. Only relevant if auto.generate = T. Defaults to 100.}
 

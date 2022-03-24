@@ -3421,7 +3421,8 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
 
 segmentation_datapreparation <- function(fleetdata,vessel_ID,shiplength, gear,species,area,catch,
                                          reduce=T,auto.generate=T,threshold.auto.generate=100, min.share=0){
-  shiplength <<- fleetdata %>%
+  data <- fleetdata
+  shiplength <<- data %>%
     dplyr::select({{vessel_ID}},{{shiplength}})  %>%
     rename(vessel_ID = {{vessel_ID}}, shiplength = {{shiplength}}) %>%
     unique()
