@@ -556,7 +556,7 @@ clustering_stockshares_plot <- function(data,clustering, min_share=5,label_wrap=
 
   #Calculate spec shares
   data <- dataframe %>%
-    filter(ship_ID %in% clustering$ship_ID) %>%
+    dplyr::filter(ship_ID %in% clustering$ship_ID) %>%
     group_by(ship_ID) %>%
     left_join(clustering,by="ship_ID") %>%
     group_by(cluster,stock) %>%
@@ -675,7 +675,7 @@ clustering_assemblageshares_plot <- function(data,clustering, min_share=5,label_
     dplyr::select(species_code,target_assemblage_code,target_assemblage)
   suppressMessages(
     data <- data %>%
-      filter(ship_ID %in% clustering$ship_ID) %>%
+      dplyr::filter(ship_ID %in% clustering$ship_ID) %>%
       mutate(species_code = toupper(sub("\\..*", "", stock))) %>%
       mutate(species_code = toupper(sub("\\-.*", "", species_code))) %>%
       left_join(assemblage_red) %>%
