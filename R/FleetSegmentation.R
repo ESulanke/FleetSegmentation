@@ -549,6 +549,7 @@ clustering_stockshares_plot <- function(data,clustering, min_share=5,label_wrap=
 
   dataframe <- data
   colnames(dataframe) <- c("ship_ID","stock","landings")
+  colnames(clustering) <- c("ship_ID","cluster")
   clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
   clusterlevels <- paste("cluster",labels,sep = " ")
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
@@ -665,6 +666,7 @@ clustering_assemblageshares_plot <- function(data,clustering, min_share=5,label_
 
   dataframe <- data
   colnames(dataframe) <- c("ship_ID","stock","landings")
+  colnames(clustering) <- c("ship_ID","cluster")
   clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
   clusterlevels <- paste("cluster",labels,sep = " ")
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
