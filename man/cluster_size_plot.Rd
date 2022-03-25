@@ -4,10 +4,12 @@
 \alias{cluster_size_plot}
 \title{Plot number of ships in clusters}
 \usage{
-cluster_size_plot(clustering)
+cluster_size_plot(clustering, subset = NULL)
 }
 \arguments{
 \item{clustering}{The result of the clustering procedure, stored as a data frame.}
+
+\item{subset}{Display only a subset of clusters in plot. Can be a single number or a vector of numbers.}
 }
 \description{
 This is function creates an overview plot of the number of ships in each cluster.

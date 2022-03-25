@@ -4,12 +4,14 @@
 \alias{clustercatch_plot}
 \title{Plot of total catch of ships in clusters}
 \usage{
-clustercatch_plot(data, clustering)
+clustercatch_plot(data, clustering, subset = NULL)
 }
 \arguments{
 \item{data}{The original, untransformed data that was used for the clustering.}
 
 \item{clustering}{The result of the clustering procedure, stored as a data frame.}
+
+\item{subset}{Display only a subset of clusters in plot. Can be a single number or a vector of numbers.}
 }
 \description{
 This is function creates an overview barplot of the total catch of all ships in each cluster.

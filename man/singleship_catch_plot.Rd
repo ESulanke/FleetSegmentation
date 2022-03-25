@@ -4,12 +4,14 @@
 \alias{singleship_catch_plot}
 \title{Plot of catch of single ships in clusters}
 \usage{
-singleship_catch_plot(data, clustering)
+singleship_catch_plot(data, clustering, subset = NULL)
 }
 \arguments{
 \item{data}{The original, untransformed data that was used for the clustering.}
 
 \item{clustering}{The result of the clustering procedure, stored as a data frame.}
+
+\item{subset}{Display only a subset of clusters in plot. Can be a single number or a vector of numbers.}
 }
 \description{
 This is function creates an overview mixed box- and dotplot of the catch of single ships in each cluster. A boxplot will only be drawn for clusters containing more than 5 ships.

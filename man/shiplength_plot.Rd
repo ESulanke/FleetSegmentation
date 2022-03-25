@@ -4,12 +4,14 @@
 \alias{shiplength_plot}
 \title{Plot length of ships in clusters}
 \usage{
-shiplength_plot(clustering, shiplength)
+shiplength_plot(clustering, shiplength, subset = NULL)
 }
 \arguments{
 \item{clustering}{The result of the clustering procedure, stored as a data frame.}
 
 \item{shiplength}{A data frame containing the length of the ships clustered.}
+
+\item{subset}{Display only a subset of clusters in plot. Can be a single number or a vector of numbers.}
 }
 \description{
 This is function creates an overview mixed dot- and boxplot of the length of the ships in each cluster. The length can be given in cm or m, the function will auto-transform from cm to m.

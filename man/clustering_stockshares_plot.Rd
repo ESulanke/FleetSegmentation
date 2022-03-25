@@ -9,7 +9,8 @@ clustering_stockshares_plot(
   clustering,
   min_share = 5,
   label_wrap = 6,
-  display_cluster_size = F
+  display_cluster_size = F,
+  subset = NULL
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ clustering_stockshares_plot(
 \item{label_wrap}{Indicates the number of characters per line before a line break in the stock labels. Defaults to 6.}
 
 \item{display_cluster_size}{Indicates, whether the number of vessels in each cluster should be displayed in the plot. Defaults to FALSE.}
+
+\item{subset}{Display only a subset of clusters in plot. Can be a single number or a vector of numbers.}
 }
 \description{
 This is function creates an overview barplot of the average shares of stocks on the catch of each clusters vessels.

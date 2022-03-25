@@ -4,7 +4,7 @@
 \alias{clustering_plotgrid}
 \title{Plotgrid of number of ships, ship length, catch of single ships and total catch of ships in clusters}
 \usage{
-clustering_plotgrid(data, clustering, shiplength)
+clustering_plotgrid(data, clustering, shiplength, subset = NULL)
 }
 \arguments{
 \item{data}{The original, untransformed data that was used for the clustering.}
@@ -12,6 +12,8 @@ clustering_plotgrid(data, clustering, shiplength)
 \item{clustering}{The result of the clustering procedure, stored as a data frame.}
 
 \item{shiplength}{A data frame containing the length of the ships clustered.}
+
+\item{subset}{Display only a subset of clusters in plot. Can be a single number or a vector of numbers.}
 }
 \description{
 This is function creates an overview plot grid of

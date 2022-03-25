@@ -518,6 +518,7 @@ clustering_stockshares_table <- function(data,clustering, style="basic"){
 #' @param min_share The minimum average percentage share a stock has to have to be labelled in the plot. Defaults to 5\%.
 #' @param label_wrap Indicates the number of characters per line before a line break in the stock labels. Defaults to 6.
 #' @param display_cluster_size Indicates, whether the number of vessels in each cluster should be displayed in the plot. Defaults to FALSE.
+#' @param subset Display only a subset of clusters in plot. Can be a single number or a vector of numbers.
 #' @keywords clustering
 #' @keywords plot
 #' @keywords stockshares
@@ -530,17 +531,31 @@ clustering_stockshares_table <- function(data,clustering, style="basic"){
 #' clustering_stockshares_plot(data = stockdata,clustering = clustering)
 #' clustering_stockshares_plot(data = stockdata,clustering = clustering,
 #' min_share=10,label_wrap=10, display_cluster_size=TRUE)
-clustering_stockshares_plot <- function(data,clustering, min_share=5,label_wrap=6, display_cluster_size=F){
-  names(data) <- c("ship_ID","stock","landings")
-  clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
-  clusterlevels <- c()
-  for (x in 1:clust_number) {
-    levels <- as.vector(c(paste("cluster", x)))
-    clusterlevels <- c(clusterlevels,levels)
+clustering_stockshares_plot <- function(data,clustering, min_share=5,label_wrap=6, display_cluster_size=F,subset=NULL){
+  if(length(subset) == 1){
+    clustering <- clustering %>%
+      dplyr::filter(cluster == levels(cluster)[subset])
+    labels <- paste(subset)
   }
+
+  if(length(subset) > 1){
+    clustering <- clustering %>%
+      dplyr::filter(cluster %in% levels(cluster)[subset])
+    labels <-paste(subset[order(subset)])
+  }
+
+  clust_number <- n_distinct(clustering$cluster)
+  if (is.null(subset)){labels <- paste(order(1:clust_number))}
+
+  dataframe <- data
+  colnames(dataframe) <- c("ship_ID","stock","landings")
+  clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
+  clusterlevels <- paste("cluster",labels,sep = " ")
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
+
   #Calculate spec shares
-  data <- data %>%
+  data <- dataframe %>%
+    filter(ship_ID %in% clustering$ship_ID) %>%
     group_by(ship_ID) %>%
     left_join(clustering,by="ship_ID") %>%
     group_by(cluster,stock) %>%
@@ -558,12 +573,6 @@ clustering_stockshares_plot <- function(data,clustering, min_share=5,label_wrap=
   data$label[data$share_stock < (min_share/100)] <- " "
   data$label <- as.factor(data$label)
 
-  clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
-  clusterlevels <- c()
-  for (x in 1:clust_number) {
-    levels <- as.vector(c(paste("cluster", x)))
-    clusterlevels <- c(clusterlevels,levels)
-  }
   data$cluster <- factor(data$cluster, levels = rev(clusterlevels))
   data <- data %>%
     arrange(share_stock,cluster)
@@ -593,7 +602,7 @@ clustering_stockshares_plot <- function(data,clustering, min_share=5,label_wrap=
             legend.position = "bottom",legend.title = element_blank(),
             plot.margin=unit(c(5.5,30,5.5,5.5),"points"), legend.text = element_text(size = 10),axis.text.y = element_text(size=8))+
       scale_y_continuous(labels=percent, expand = c(0, 0),breaks = c(.25,.50,.75,1),limits = c(0,1))+
-      scale_x_discrete(labels=rev(seq(1,clust_number,1)))+
+      scale_x_discrete(labels=rev(labels))+
       coord_flip()
   }
   if(display_cluster_size==T){
@@ -610,12 +619,11 @@ clustering_stockshares_plot <- function(data,clustering, min_share=5,label_wrap=
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank())+
       scale_y_continuous(labels=percent, expand = c(0, 0),breaks = c(.25,.50,.75,1),limits = c(0,1.2))+
-      scale_x_discrete(labels=rev(seq(1,clust_number,1)))+
+      scale_x_discrete(labels=rev(labels))+
       coord_flip()
-    }
+  }
   stock_plot
 }
-
 
 ##### 9) Plot assemblage shares of clusters ####
 #' @title Plot assemblage shares of clusters
@@ -626,6 +634,7 @@ clustering_stockshares_plot <- function(data,clustering, min_share=5,label_wrap=
 #' @param min_share The minimum average percentage share a stock has to have to be labelled in the plot. Defaults to 5\%.
 #' @param label_wrap Indicates the number of characters per line before a line break in the stock labels. Defaults to 6.
 #' @param display_cluster_size Indicates, whether the number of vessels in each cluster should be displayed in the plot. Defaults to FALSE.
+#' @param subset Display only a subset of clusters in plot. Can be a single number or a vector of numbers.
 #' @keywords clustering
 #' @keywords plot
 #' @keywords assemblage
@@ -637,46 +646,54 @@ clustering_stockshares_plot <- function(data,clustering, min_share=5,label_wrap=
 #' clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
 #' clustering_assemblageshares_plot(data = stockdata,clustering = clustering)
 #' clustering_assemblageshares_plot(data = stockdata,clustering = clustering,
-#' min_share=10,label_wrap=10, display_cluster_size=TRUE)
-clustering_assemblageshares_plot <- function(data,clustering, min_share=5,label_wrap=6, display_cluster_size=F){
-  names(data) <- c("ship_ID", "stock", "landings")
-  clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
-  clusterlevels <- c()
-  for (x in 1:clust_number) {
-    levels <- as.vector(c(paste("cluster", x)))
-    clusterlevels <- c(clusterlevels, levels)
+#' min_share=10,label_wrap=10, display_cluster_size=TRUE, subset = c(1,3,5))
+clustering_assemblageshares_plot <- function(data,clustering, min_share=5,label_wrap=6, display_cluster_size=F,subset=NULL){
+  if(length(subset) == 1){
+    clustering <- clustering %>%
+      dplyr::filter(cluster == levels(cluster)[subset])
+    labels <- paste(subset)
   }
+
+  if(length(subset) > 1){
+    clustering <- clustering %>%
+      dplyr::filter(cluster %in% levels(cluster)[subset])
+    labels <-paste(subset[order(subset)])
+  }
+
+  clust_number <- n_distinct(clustering$cluster)
+  if (is.null(subset)){labels <- paste(order(1:clust_number))}
+
+  dataframe <- data
+  colnames(dataframe) <- c("ship_ID","stock","landings")
+  clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
+  clusterlevels <- paste("cluster",labels,sep = " ")
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
 
   assemblage_red <- assemblage %>%
     dplyr::select(species_code,target_assemblage_code,target_assemblage)
-suppressMessages(
-  data <- data %>%
-    mutate(species_code = toupper(sub("\\..*", "", stock))) %>%
-    mutate(species_code = toupper(sub("\\-.*", "", species_code))) %>%
-    left_join(assemblage_red) %>%
-    mutate(target_assemblage_code = ifelse(species_code == "NEP", "CRU",target_assemblage_code),
-           target_assemblage = ifelse(species_code == "NEP", "Crustaceans",target_assemblage),
-           target_assemblage_code = replace_na(target_assemblage_code,"UNK"),
-           target_assemblage = replace_na(target_assemblage, "unknown")) %>%
-    left_join(clustering) %>%
-    group_by(cluster,target_assemblage_code) %>%
-    summarise(catch_cluster = sum(landings)) %>%
-    group_by(cluster) %>%
-    mutate(share_assemblage = catch_cluster/sum(catch_cluster)) %>%
-    unique() %>% ungroup() %>% arrange(cluster, desc(share_assemblage))
+  suppressMessages(
+    data <- data %>%
+      filter(ship_ID %in% clustering$ship_ID) %>%
+      mutate(species_code = toupper(sub("\\..*", "", stock))) %>%
+      mutate(species_code = toupper(sub("\\-.*", "", species_code))) %>%
+      left_join(assemblage_red) %>%
+      mutate(target_assemblage_code = ifelse(species_code == "NEP", "CRU",target_assemblage_code),
+             target_assemblage = ifelse(species_code == "NEP", "Crustaceans",target_assemblage),
+             target_assemblage_code = replace_na(target_assemblage_code,"UNK"),
+             target_assemblage = replace_na(target_assemblage, "unknown")) %>%
+      left_join(clustering) %>%
+      group_by(cluster,target_assemblage_code) %>%
+      summarise(catch_cluster = sum(landings)) %>%
+      group_by(cluster) %>%
+      mutate(share_assemblage = catch_cluster/sum(catch_cluster)) %>%
+      unique() %>% ungroup() %>% arrange(cluster, desc(share_assemblage))
   )
 
   data$label <- data$target_assemblage_code
   data$label <- as.character(data$label)
   data$label[data$share_assemblage < (min_share/100)] <- " "
   data$label <- as.factor(data$label)
-  clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
-  clusterlevels <- c()
-  for (x in 1:clust_number) {
-    levels <- as.vector(c(paste("cluster", x)))
-    clusterlevels <- c(clusterlevels, levels)
-  }
+
   data$cluster <- factor(data$cluster, levels = rev(clusterlevels))
   data <- data %>% arrange(share_assemblage, cluster)
 
@@ -698,13 +715,13 @@ suppressMessages(
 
   if(display_cluster_size==F){
     assemblage_plot <- ggplot() + geom_col(data = data, aes(cluster,
-                                                       share_assemblage, fill = share_level), position = "fill",
-                                      colour = "black") + scale_fill_manual(values = rev(c("#ef745c", "#c15955",
-                                                                                           "#923e4d", "#632345", "#34073d")), labels = c("very high (> 75%)",
-                                                                                                                                         "high (50-75%)", "medium (25-50%)", "low (10-25%)",
-                                                                                                                                         "minimal (< 10%)"), guide = guide_legend(reverse = TRUE)) +
+                                                            share_assemblage, fill = share_level), position = "fill",
+                                           colour = "black") + scale_fill_manual(values = rev(c("#ef745c", "#c15955",
+                                                                                                "#923e4d", "#632345", "#34073d")), labels = c("very high (> 75%)",
+                                                                                                                                              "high (50-75%)", "medium (25-50%)", "low (10-25%)",
+                                                                                                                                              "minimal (< 10%)"), guide = guide_legend(reverse = TRUE)) +
       geom_label(data = data[data$share_assemblage > (min_share/100),], aes(cluster, (cum_share - 0.5 * share_assemblage),label = str_wrap(label, width = label_wrap)),
-      size = 4, color = "black", fill = "white") +
+                 size = 4, color = "black", fill = "white") +
       theme_bw() + theme(axis.title.x = element_blank(),
                          axis.title.y = element_text(face = "bold", size = 12),
                          legend.position = "bottom", legend.title = element_blank(),
@@ -713,7 +730,7 @@ suppressMessages(
       scale_y_continuous(labels = percent, expand = c(0,
                                                       0), breaks = c(0.25, 0.5, 0.75, 1), limits = c(0,
                                                                                                      1)) +
-      scale_x_discrete(labels = rev(seq(1, clust_number,1))) +
+      scale_x_discrete(labels=rev(labels))+
       coord_flip()
   }
   if(display_cluster_size==T){
@@ -722,8 +739,8 @@ suppressMessages(
                                            colour = "black") +
       scale_fill_manual(values = rev(c("#ef745c", "#c15955","#923e4d", "#632345", "#34073d")), labels = c("very high (> 75%)","high (50-75%)", "medium (25-50%)", "low (10-25%)",                                                                                                                              "minimal (< 10%)"), guide = guide_legend(reverse = TRUE)) +
       geom_label(data = data[data$share_assemblage > (min_share/100),], aes(cluster, (cum_share - 0.5 * share_assemblage),
-             label = str_wrap(label, width = label_wrap)),
-      size = 4, color = "black", fill = "white") +
+                                                                            label = str_wrap(label, width = label_wrap)),
+                 size = 4, color = "black", fill = "white") +
       geom_text(data=n_vessel, aes(cluster,1.1,label=n_vessel),size=4,show.legend = F)+
       theme_minimal() +
       theme(axis.title.x = element_blank(),axis.title.y = element_text(face="bold",size=12),
@@ -733,14 +750,12 @@ suppressMessages(
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank())+
       scale_y_continuous(labels=percent, expand = c(0, 0),breaks = c(.25,.50,.75,1),limits = c(0,1.2))+
-      scale_x_discrete(labels=rev(seq(1,clust_number,1)))+
+      scale_x_discrete(labels=rev(labels))+
       coord_flip()
 
-    }
+  }
   assemblage_plot
-
 }
-
 
 
 ##### 10) Plot stock shares of single cluster ####
@@ -827,6 +842,7 @@ single_cluster_stockshares <- function(data,clustering, min_share=5,cluster.numb
 #'
 #' @description This is function creates an overview plot of the number of ships in each cluster.
 #' @param clustering The result of the clustering procedure, stored as a data frame.
+#' @param subset Display only a subset of clusters in plot. Can be a single number or a vector of numbers.
 #' @keywords clustering
 #' @keywords plot
 #' @keywords size
@@ -837,13 +853,25 @@ single_cluster_stockshares <- function(data,clustering, min_share=5,cluster.numb
 #' catchdata <- catchdata_transformation(data = stockdata)
 #' clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
 #' cluster_size_plot(clustering = clustering)
-cluster_size_plot <- function(clustering){
-  clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
-  clusterlevels <- c()
-  for (x in 1:clust_number) {
-    levels <- as.vector(c(paste("cluster", x)))
-    clusterlevels <- c(clusterlevels,levels)
+cluster_size_plot <- function(clustering,subset=NULL){
+
+  if(length(subset) == 1){
+    clustering <- clustering %>%
+      dplyr::filter(cluster == levels(cluster)[subset])
+    labels <- paste(subset)
   }
+
+  if(length(subset) > 1){
+    clustering <- clustering %>%
+      dplyr::filter(cluster %in% levels(cluster)[subset])
+    labels <-paste(subset[order(subset)])
+  }
+
+  clust_number <- n_distinct(clustering$cluster)
+  if (is.null(subset)){labels <- paste(order(1:clust_number))}
+
+  clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
+  clusterlevels <- paste("cluster",labels,sep = " ")
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
   #plot size of clusters
   clust_size_red <- clustering %>%
@@ -856,10 +884,10 @@ cluster_size_plot <- function(clustering){
   cluster_size_plot <- ggplot(clust_size_red, aes(cluster,size))+
     geom_col(colour="black",fill="#04172d",alpha=0.8)+
     geom_text(aes(label=size), vjust=-0.5, size=4, fontface="bold")+
-    labs(y="Number of ships in cluster",x="cluster")+
-    scale_x_discrete(labels=seq(1,clust_number,1))+
+    labs(y="Number of ships in cluster",x="cluster", title = " ")+
+    scale_x_discrete(labels=labels)+
     theme_bw()+
-    theme(axis.title.y =  element_text(face="bold",size=12),axis.title.x = element_blank())+
+    theme(axis.title.y =  element_text(face="bold",size=10),axis.title.x = element_blank())+
     scale_y_continuous(limits = c(0,clust_size_plot_ymax))
   cluster_size_plot
 }
@@ -871,6 +899,7 @@ cluster_size_plot <- function(clustering){
 #' A boxplot will only be drawn for clusters containing more than 5 ships.
 #' @param clustering The result of the clustering procedure, stored as a data frame.
 #' @param shiplength A data frame containing the length of the ships clustered.
+#' @param subset Display only a subset of clusters in plot. Can be a single number or a vector of numbers.
 #' @keywords clustering
 #' @keywords plot
 #' @keywords shiplength
@@ -881,15 +910,27 @@ cluster_size_plot <- function(clustering){
 #' catchdata <- catchdata_transformation(data = stockdata)
 #' clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
 #' shiplength_plot(clustering = clustering,shiplength = example_lengthdata)
-shiplength_plot <- function(clustering,shiplength){
+shiplength_plot <- function(clustering,shiplength,subset=NULL){
   names(shiplength)<-c("ship_ID","loa")
-  clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
-  clusterlevels <- c()
-  for (x in 1:clust_number) {
-    levels <- as.vector(c(paste("cluster", x)))
-    clusterlevels <- c(clusterlevels,levels)
+  if(length(subset) == 1){
+    clustering <- clustering %>%
+      dplyr::filter(cluster == levels(cluster)[subset])
+    labels <- paste(subset)
   }
+
+  if(length(subset) > 1){
+    clustering <- clustering %>%
+      dplyr::filter(cluster %in% levels(cluster)[subset])
+    labels <-paste(subset[order(subset)])
+  }
+
+  clust_number <- n_distinct(clustering$cluster)
+  if (is.null(subset)){labels <- paste(order(1:clust_number))}
+
+  clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
+  clusterlevels <- paste("cluster",labels,sep = " ")
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
+
   cluster_length <- left_join(clustering,shiplength,by="ship_ID")
   cluster_length$unit <- ifelse(mean(cluster_length$loa >= 500),"cm","m")
   cluster_length$length <- ifelse(cluster_length$unit=="cm",cluster_length$loa/100,cluster_length$loa)
@@ -900,15 +941,16 @@ shiplength_plot <- function(clustering,shiplength){
   cluster_length$cluster <- factor(cluster_length$cluster, levels = c(clusterlevels))
   cluster_length <- cluster_length %>% arrange(cluster)
 
-  clust_length_plot <- ggplot(data = cluster_length, aes(cluster,length))+
+  cluster_length_plot <- ggplot(data = cluster_length, aes(cluster,length))+
     geom_point(alpha=0)+
     geom_boxplot(data= dplyr::filter(cluster_length, clust_size > 5), aes(cluster, length),colour="black",fill="#29505a",alpha=.8)+
-    geom_point(data= dplyr::filter(cluster_length, clust_size <= 5), size=5,aes(cluster, length),colour="black",fill="#29505a",alpha=.8,shape=21)+
-    labs(y="length [m]",x="cluster")+
+    geom_point(data= dplyr::filter(cluster_length, clust_size <= 5), size=3,aes(cluster, length),colour="black",fill="#29505a",alpha=.8,shape=21)+
+    labs(y="length [m]",x="cluster", title = " ")+
     theme_bw()+
-    theme(axis.title =  element_text(face="bold",size=12))+
-    scale_x_discrete(labels = c(1:clust_number))+
+    theme(axis.title.y =  element_text(face="bold",size=10),axis.title.x = element_blank())+
+    scale_x_discrete(labels=labels)+
     scale_y_continuous(limits = c(0,(max(cluster_length$length)*1.2)))
+
   clust_length_plot
 }
 
@@ -919,6 +961,7 @@ shiplength_plot <- function(clustering,shiplength){
 #' @description This is function creates an overview mixed box- and dotplot of the catch of single ships in each cluster. A boxplot will only be drawn for clusters containing more than 5 ships.
 #' @param data The original, untransformed data that was used for the clustering.
 #' @param clustering The result of the clustering procedure, stored as a data frame.
+#' @param subset Display only a subset of clusters in plot. Can be a single number or a vector of numbers.
 #' @keywords clustering
 #' @keywords plot
 #' @keywords catch
@@ -929,14 +972,27 @@ shiplength_plot <- function(clustering,shiplength){
 #' catchdata <- catchdata_transformation(data = stockdata)
 #' clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
 #' singleship_catch_plot(data = stockdata,clustering = clustering)
-singleship_catch_plot <- function(data, clustering){
-  names(data) <- c("ship_ID","stock","landings")
-  clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
-  clusterlevels <- c()
-  for (x in 1:clust_number) {
-    levels <- as.vector(c(paste("cluster", x)))
-    clusterlevels <- c(clusterlevels,levels)
+
+singleship_catch_plot <- function(data, clustering,subset=NULL){
+  if(length(subset) == 1){
+    clustering <- clustering %>%
+      dplyr::filter(cluster == levels(cluster)[subset])
+    labels <- paste(subset)
   }
+
+  if(length(subset) > 1){
+    clustering <- clustering %>%
+      dplyr::filter(cluster %in% levels(cluster)[subset])
+    labels <-paste(subset[order(subset)])
+  }
+
+  clust_number <- n_distinct(clustering$cluster)
+  if (is.null(subset)){labels <- paste(order(1:clust_number))}
+
+  dataframe <- data
+  colnames(dataframe) <- c("ship_ID","stock","landings")
+  clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
+  clusterlevels <- paste("cluster",labels,sep = " ")
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
   singleships_tons <- data %>%
     left_join(clustering,by="ship_ID") %>%
@@ -954,10 +1010,10 @@ singleship_catch_plot <- function(data, clustering){
     geom_point(alpha=0)+
     geom_boxplot(data= dplyr::filter(singleships_tons,clust_size > 5), aes(cluster, total_landings/1000),fill="#62919c",alpha=.8)+
     geom_point(data= dplyr::filter(singleships_tons,clust_size <= 5), aes(cluster, total_landings/1000),shape=21, size=3,fill="#62919c",alpha=.8)+
-    labs(y="Annual catch / ship [t]",x="cluster")+
-    scale_x_discrete(labels = c(1:clust_number))+
+    labs(y="Annual catch / ship [t]",x="cluster", title = " ")+
+    scale_x_discrete(labels=labels)+
     theme_bw()+
-    theme(axis.title =  element_text(face="bold",size=12))+
+    theme(axis.title =  element_text(face="bold",size=10))+
     scale_y_continuous(labels=function(x) format(x, big.mark = ",", decimal.mark = ".", scientific = FALSE), limits = c(0,(max(singleships_tons$total_landings)/1000*1.2)))
 
   singleships_tons_plot
@@ -969,6 +1025,7 @@ singleship_catch_plot <- function(data, clustering){
 #' @description This is function creates an overview barplot of the total catch of all ships in each cluster.
 #' @param data The original, untransformed data that was used for the clustering.
 #' @param clustering The result of the clustering procedure, stored as a data frame.
+#' @param subset Display only a subset of clusters in plot. Can be a single number or a vector of numbers.
 #' @keywords clustering
 #' @keywords plot
 #' @keywords catch
@@ -979,15 +1036,29 @@ singleship_catch_plot <- function(data, clustering){
 #' catchdata <- catchdata_transformation(data = stockdata)
 #' clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
 #' clustercatch_plot(data = stockdata,clustering = clustering)
-clustercatch_plot <- function(data, clustering){
-  names(data) <- c("ship_ID","stock","landings")
-  clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
-  clusterlevels <- c()
-  for (x in 1:clust_number) {
-    levels <- as.vector(c(paste("cluster", x)))
-    clusterlevels <- c(clusterlevels,levels)
+
+clustercatch_plot <- function(data, clustering, subset=NULL){
+  if(length(subset) == 1){
+    clustering <- clustering %>%
+      dplyr::filter(cluster == levels(cluster)[subset])
+    labels <- paste(subset)
   }
+
+  if(length(subset) > 1){
+    clustering <- clustering %>%
+      dplyr::filter(cluster %in% levels(cluster)[subset])
+    labels <-paste(subset[order(subset)])
+  }
+
+  clust_number <- n_distinct(clustering$cluster)
+  if (is.null(subset)){labels <- paste(order(1:clust_number))}
+
+  dataframe <- data
+  colnames(dataframe) <- c("ship_ID","stock","landings")
+  clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
+  clusterlevels <- paste("cluster",labels,sep = " ")
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
+
   cluster_tons <- data %>%
     left_join(clustering,by="ship_ID") %>%
     group_by(cluster) %>%
@@ -1000,10 +1071,10 @@ clustercatch_plot <- function(data, clustering){
 
   cluster_tons_plot <- ggplot(cluster_tons, aes(cluster, total_landings/1000))+
     geom_col(fill="#62919c",alpha=.8,colour="black")+
-    labs(y="Annual catch / cluster [t]",x="cluster")+
-    scale_x_discrete(labels = c(1:clust_number))+
+    labs(y="Annual catch / cluster [t]",x="cluster", title = " ")+
+    scale_x_discrete(labels=labels)+
     theme_bw()+
-    theme(axis.title =  element_text(face="bold",size=12))+
+    theme(axis.title =  element_text(face="bold",size=10))+
     scale_y_continuous(labels=function(x) format(x, big.mark = ",", decimal.mark = ".", scientific = FALSE))
   cluster_tons_plot
 }
@@ -1020,6 +1091,7 @@ clustercatch_plot <- function(data, clustering){
 #' @param data The original, untransformed data that was used for the clustering.
 #' @param clustering The result of the clustering procedure, stored as a data frame.
 #' @param shiplength A data frame containing the length of the ships clustered.
+#' @param subset Display only a subset of clusters in plot. Can be a single number or a vector of numbers.
 #' @keywords clustering
 #' @keywords plot
 #' @keywords grid
@@ -1030,32 +1102,46 @@ clustercatch_plot <- function(data, clustering){
 #' catchdata <- catchdata_transformation(data = stockdata)
 #' clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
 #' clustering_plotgrid(data = stockdata,clustering = clustering,shiplength =example_lengthdata)
-clustering_plotgrid <- function(data,clustering,shiplength){
+clustering_plotgrid <- function(data,clustering,shiplength, subset=NULL){
+
+  if(length(subset) == 1){
+    clustering <- clustering %>%
+      dplyr::filter(cluster == levels(cluster)[subset])
+    labels <- paste(subset)
+  }
+
+  if(length(subset) > 1){
+    clustering <- clustering %>%
+      dplyr::filter(cluster %in% levels(cluster)[subset])
+    labels <-paste(subset[order(subset)])
+  }
+
+  clust_number <- n_distinct(clustering$cluster)
+  if (is.null(subset)){labels <- paste(order(1:clust_number))}
+
   dataframe <- data
   colnames(shiplength)<-c("ship_ID","loa")
   colnames(dataframe) <- c("ship_ID","stock","landings")
   clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
-  clusterlevels <- c()
-  for (x in 1:clust_number) {
-    levels <- as.vector(c(paste("cluster", x)))
-    clusterlevels <- c(clusterlevels,levels)
-  }
+  clusterlevels <- paste("cluster",labels,sep = " ")
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
   #plot size of clusters
   clust_size_red <- clustering %>%
     group_by(cluster)%>%
-    summarise(size = n_distinct(ship_ID))
+    summarise(size = n())
   clust_size_plot_ymax <- max(clust_size_red$size)+max(clust_size_red$size)*0.15
-  clust_number <- n_distinct(clust_size_red$cluster)
   clust_size_red$cluster <-factor(clust_size_red$cluster, levels = (clusterlevels))
+
+
   cluster_size_plot <- ggplot(clust_size_red, aes(cluster,size))+
     geom_col(colour="black",fill="#04172d",alpha=0.8)+
     geom_text(aes(label=size), vjust=-0.5, size=4, fontface="bold")+
     labs(y="Number of ships in cluster",x="cluster", title = " ")+
-    scale_x_discrete(labels=seq(1,clust_number,1))+
+    scale_x_discrete(labels=labels)+
     theme_bw()+
     theme(axis.title.y =  element_text(face="bold",size=10),axis.title.x = element_blank())+
     scale_y_continuous(limits = c(0,clust_size_plot_ymax))
+
   #plot length of ships in clusters
   cluster_length <- left_join(clustering,shiplength, by="ship_ID") %>%
     group_by(cluster) %>%
@@ -1063,7 +1149,6 @@ clustering_plotgrid <- function(data,clustering,shiplength){
     ungroup()
   cluster_length$unit <- ifelse(mean(cluster_length$loa >= 500),"cm","m")
   cluster_length$length <- ifelse(cluster_length$unit=="cm",cluster_length$loa/100,cluster_length$loa)
-  clust_number <- n_distinct(cluster_length$cluster)
   cluster_length$cluster <- factor(cluster_length$cluster, levels = c(clusterlevels),ordered = T)
   cluster_length <- cluster_length %>% arrange(cluster)
 
@@ -1074,18 +1159,19 @@ clustering_plotgrid <- function(data,clustering,shiplength){
     labs(y="length [m]",x="cluster", title = " ")+
     theme_bw()+
     theme(axis.title.y =  element_text(face="bold",size=10),axis.title.x = element_blank())+
-    scale_x_discrete(labels = c(1:clust_number))+
+    scale_x_discrete(labels=labels)+
     scale_y_continuous(limits = c(0,(max(cluster_length$length)*1.2)))
   #plot catch of single ships in clusters
-  singleships_tons <- dataframe %>%
-    left_join(clustering,by="ship_ID") %>%
-    group_by(ship_ID,cluster) %>%
-    summarise(total_landings = sum(landings)) %>%
-    group_by(cluster)%>%
-    mutate(clust_size=n_distinct(ship_ID))%>%
-    ungroup()
-
-  clust_number <- n_distinct(singleships_tons$cluster)
+  suppressMessages(
+    singleships_tons <- dataframe %>%
+      left_join(clustering,by="ship_ID") %>%
+      drop_na(cluster) %>%
+      group_by(ship_ID,cluster) %>%
+      summarise(total_landings = sum(landings)) %>%
+      group_by(cluster)%>%
+      mutate(clust_size=n_distinct(ship_ID))%>%
+      ungroup()
+  )
   singleships_tons$cluster <- factor(singleships_tons$cluster, levels = c(clusterlevels),ordered = T)
   singleships_tons <- singleships_tons %>% arrange(cluster)
 
@@ -1094,24 +1180,25 @@ clustering_plotgrid <- function(data,clustering,shiplength){
     geom_boxplot(data= dplyr::filter(singleships_tons,clust_size > 5), aes(cluster, total_landings/1000),fill="#62919c",alpha=.8)+
     geom_point(data= dplyr::filter(singleships_tons,clust_size <= 5), aes(cluster, total_landings/1000),shape=21, size=3,fill="#62919c",alpha=.8)+
     labs(y="Annual catch / ship [t]",x="cluster", title = " ")+
-    scale_x_discrete(labels = c(1:clust_number))+
+    scale_x_discrete(labels=labels)+
     theme_bw()+
     theme(axis.title =  element_text(face="bold",size=10))+
     scale_y_continuous(labels=function(x) format(x, big.mark = ",", decimal.mark = ".", scientific = FALSE), limits = c(0,(max(singleships_tons$total_landings)/1000*1.2)))
   #Plot catch of cluster
-  cluster_tons <- dataframe %>%
-    left_join(clustering,by="ship_ID") %>%
-    group_by(cluster) %>%
-    summarise(total_landings = sum(landings)) %>%
-    ungroup()
-
-  clust_number <- n_distinct(cluster_tons$cluster)
+  suppressMessages(
+    cluster_tons <- dataframe %>%
+      left_join(clustering,by="ship_ID") %>%
+      drop_na(cluster) %>%
+      group_by(cluster) %>%
+      summarise(total_landings = sum(landings)) %>%
+      ungroup()
+  )
   cluster_tons$cluster <- factor(cluster_tons$cluster, levels = c(clusterlevels),ordered = T)
   cluster_tons <- cluster_tons %>% arrange(cluster)
   cluster_tons_plot <- ggplot(cluster_tons, aes(cluster, total_landings/1000))+
     geom_col(fill="#62919c",alpha=.8,colour="black")+
     labs(y="Annual catch / cluster [t]",x="cluster", title = " ")+
-    scale_x_discrete(labels = c(1:clust_number))+
+    scale_x_discrete(labels=labels)+
     theme_bw()+
     theme(axis.title =  element_text(face="bold",size=10))+
     scale_y_continuous(labels=function(x) format(x, big.mark = ",", decimal.mark = ".", scientific = FALSE))
