@@ -1455,7 +1455,7 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
   assemblage_red <- assemblage %>%
     dplyr::select(species_code,target_assemblage_code,target_assemblage)
 
-  colnames(dataframe) <- c("ship_ID","stock","landings")
+  colnames(data) <- c("ship_ID","stock","landings")
   colnames(clustering) <- c("ship_ID","cluster")
 
   assemblage_df <- data %>%
