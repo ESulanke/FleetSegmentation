@@ -1452,7 +1452,13 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T, distance="jaccard"
 #' cluster_assemblages_MDS(data =data, catchdata = catchdata,clustering = clustering, GoF=TRUE)
 cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF=T, distance="jaccard"){
 
-  assemblage <- data %>%
+  assemblage_red <- assemblage %>%
+    dplyr::select(species_code,target_assemblage_code,target_assemblage)
+
+  colnames(dataframe) <- c("ship_ID","stock","landings")
+  colnames(clustering) <- c("ship_ID","cluster")
+
+  assemblage_df <- data %>%
     mutate(species_code = toupper(sub("\\..*", "", stock))) %>%
     mutate(species_code = toupper(sub("\\-.*", "", species_code))) %>%
     left_join(assemblage_red) %>%
@@ -1467,7 +1473,7 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
     mutate(share_assemblage = catch_cluster/sum(catch_cluster)) %>%
     ungroup()
 
-  assemblage_matrix <- assemblage %>%
+  assemblage_matrix <- assemblage_df %>%
     dplyr::select(cluster,target_assemblage_code,share_assemblage) %>%
     pivot_wider(names_from = target_assemblage_code,values_from = share_assemblage,values_fill = 0)%>%
     ungroup()
