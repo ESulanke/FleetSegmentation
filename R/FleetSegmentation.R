@@ -3521,12 +3521,10 @@ segmentation_datapreparation <- function(fleetdata,vessel_ID,shiplength, gear,sp
     dplyr::select({{vessel_ID}},{{shiplength}})  %>%
     rename(vessel_ID = {{vessel_ID}}, shiplength = {{shiplength}}) %>%
     unique()
-
-  data <- data %>%
-    mutate({{gear}} <-as.factor({{gear}}))
-
+  
   suppressMessages(
     data_red <- data %>%
+      dplyr::mutate({{gear}} <-as.factor({{gear}})) %>%
       dplyr::group_by({{vessel_ID}},{{gear}},{{species}},{{area}}) %>%
       dplyr::summarise(landings = sum({{catch}})) %>%
       dplyr::ungroup())
