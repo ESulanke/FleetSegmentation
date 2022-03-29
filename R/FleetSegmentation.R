@@ -3528,14 +3528,14 @@ data$gear <- as.factor(data$gear)
   suppressMessages(
     data_red <- data %>%
       drop_na(gear) %>%
-      dplyr::group_by({{vessel_ID}},{{gear}},{{species}},{{area}}) %>%
+      dplyr::group_by({{vessel_ID}},gear,{{species}},{{area}}) %>%
       dplyr::summarise(landings = sum({{catch}})) %>%
       dplyr::ungroup())
 
   suppressMessages(
     for (i in seq_along(levels(data$gear)))   {
       data_split <- data_red %>%
-        group_split({{gear}},.keep = F)
+        group_split(gear,.keep = F)
       temp <- data_split[[i]]
       tempII <- assign_stocks(temp, reduce = reduce, auto.generate = auto.generate,
                               threshold.auto.generate = threshold.auto.generate, min.share = min.share)
