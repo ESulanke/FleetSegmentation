@@ -3522,13 +3522,14 @@ segmentation_datapreparation <- function(fleetdata,vessel_ID,shiplength, gear,sp
     rename(vessel_ID = {{vessel_ID}}, shiplength = {{shiplength}}) %>%
     unique()
 
-  data$gear <- as.factor(data$gear)
+  data <- data %>%
+    mutate({{gear}} <-as.factor({{gear}}))
 
   suppressMessages(
     data_red <- data %>%
-      group_by({{vessel_ID}},{{gear}},{{species}},{{area}}) %>%
-      summarise(landings = sum({{catch}})) %>%
-      ungroup())
+      dplyr::group_by({{vessel_ID}},{{gear}},{{species}},{{area}}) %>%
+      dplyr::summarise(landings = sum({{catch}})) %>%
+      dplyr::ungroup())
   suppressMessages(
     for (i in seq_along(levels(data$gear)))   {
       data_split <- data_red %>%
