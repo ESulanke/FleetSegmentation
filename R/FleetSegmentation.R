@@ -3526,9 +3526,9 @@ segmentation_datapreparation <- function(fleetdata,vessel_ID,shiplength, gear,sp
 
   suppressMessages(
     data_red <- data %>%
-      dplyr::group_by({{vessel_ID}},{{gear}},{{species}},{{area}}) %>%
-      dplyr::summarise(landings = sum({{catch}})) %>%
-      dplyr::ungroup())
+      group_by({{vessel_ID}},{{gear}},{{species}},{{area}}) %>%
+      summarise(landings = sum({{catch}})) %>%
+      ungroup())
   suppressMessages(
     for (i in seq_along(levels(data$gear)))   {
       data_split <- data_red %>%
