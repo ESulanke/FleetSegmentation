@@ -53,7 +53,7 @@ It also assigns ICES stocks to catch data based on the caught species and the FA
 Due to limits in available data, especially on a fine spatial resolution, not all ICES-stocks can be taken into account. Therefore, stocks of Nephrops norvegicus
 and Ammodytes spp. are based on EU definitions, not on ICES definitions. Additionally, the function automatically creates stocks based on species name and FAO area for species
 which are caught in larger quantities (> 100 kg) but are not part of defined ICES-stock. This feature can be shut off if the user decides not to apply the procedure and
-use only defined ICES-stocks.
+use only defined ICES-stocks. Attention! The function will drop all gear NAs!
 }
 \examples{
 segmentation_datapreparation(data = example_fleetdata,

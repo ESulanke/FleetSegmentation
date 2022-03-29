@@ -3485,7 +3485,7 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
 #' Due to limits in available data, especially on a fine spatial resolution, not all ICES-stocks can be taken into account. Therefore, stocks of Nephrops norvegicus
 #' and Ammodytes spp. are based on EU definitions, not on ICES definitions. Additionally, the function automatically creates stocks based on species name and FAO area for species
 #' which are caught in larger quantities (> 100 kg) but are not part of defined ICES-stock. This feature can be shut off if the user decides not to apply the procedure and
-#' use only defined ICES-stocks.
+#' use only defined ICES-stocks. Attention! The function will drop all gear NAs!
 #' @param fleetdata The underlying fleet data frame. With the following arguments, the columns are specified
 #' @param vessel_ID The unquoted name of the column containing the vessel identifier
 #' @param shiplength The unquoted name of the column containing the length of the vessel in m
@@ -3527,6 +3527,7 @@ data$gear <- as.factor(data$gear)
 
   suppressMessages(
     data_red <- data %>%
+      drop_na(gear) %>%
       dplyr::group_by({{vessel_ID}},{{gear}},{{species}},{{area}}) %>%
       dplyr::summarise(landings = sum({{catch}})) %>%
       dplyr::ungroup())
