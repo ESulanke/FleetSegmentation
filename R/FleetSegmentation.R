@@ -60,11 +60,11 @@ globalVariables(c("Dim.1" ,"Dim.2", "MED_stocks", "MeanDim1", "MeanDim2" ,"area"
 catchdata_transformation <- function(data){
   names(data)<-c("ship_ID","stock","landings")
   stocks_sum <- data %>%
-    group_by(ship_ID, stock) %>%
-    summarise(weight_landed = sum(landings)) %>%
-    group_by(ship_ID)%>%
-    mutate(share_stock= weight_landed/sum(weight_landed)) %>%
-    ungroup()
+    dplyr::group_by(ship_ID, stock) %>%
+    dplyr::summarise(weight_landed = sum(landings)) %>%
+    dplyr::group_by(ship_ID)%>%
+    dplyr::mutate(share_stock= weight_landed/sum(weight_landed)) %>%
+    dplyr::ungroup()
 
   stocks_sum <- stocks_sum[,-ncol(stocks_sum)]
   stocks_wide <- spread(stocks_sum, key = "stock", value = weight_landed, fill = 0)
@@ -481,17 +481,17 @@ clustering_stockshares_table <- function(data,clustering, style="basic"){
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
   #Calculate spec shares
   data <- data %>%
-    group_by(ship_ID) %>%
+    dplyr::group_by(ship_ID) %>%
     left_join(clustering,by="ship_ID") %>%
-    group_by(cluster,stock) %>%
-    mutate(catch_cluster_stock =sum(landings)) %>%
-    group_by(cluster) %>%
-    mutate(catch_cluster =sum(landings)) %>%
-    group_by(cluster,stock) %>%
-    summarise(share_stock = catch_cluster_stock/catch_cluster*100) %>%
+    dplyr::group_by(cluster,stock) %>%
+    dplyr::mutate(catch_cluster_stock =sum(landings)) %>%
+    dplyr::group_by(cluster) %>%
+    dplyr::mutate(catch_cluster =sum(landings)) %>%
+    dplyr::group_by(cluster,stock) %>%
+    dplyr::summarise(share_stock = catch_cluster_stock/catch_cluster*100) %>%
     unique()%>%
     arrange(cluster,desc(share_stock)) %>%
-    ungroup()
+    dplyr::ungroup()
 
   if(style=="basic"){
     return(data)
@@ -557,16 +557,16 @@ clustering_stockshares_plot <- function(data,clustering, min_share=5,label_wrap=
   #Calculate spec shares
   data <- dataframe %>%
     dplyr::filter(ship_ID %in% clustering$ship_ID) %>%
-    group_by(ship_ID) %>%
+    dplyr::group_by(ship_ID) %>%
     left_join(clustering,by="ship_ID") %>%
-    group_by(cluster,stock) %>%
-    mutate(catch_cluster_stock =sum(landings)) %>%
-    group_by(cluster) %>%
-    mutate(catch_cluster =sum(landings)) %>%
-    group_by(cluster,stock) %>%
-    summarise(share_stock = catch_cluster_stock/catch_cluster) %>%
+    dplyr::group_by(cluster,stock) %>%
+    dplyr::mutate(catch_cluster_stock =sum(landings)) %>%
+    dplyr::group_by(cluster) %>%
+    dplyr::mutate(catch_cluster =sum(landings)) %>%
+    dplyr::group_by(cluster,stock) %>%
+    dplyr::summarise(share_stock = catch_cluster_stock/catch_cluster) %>%
     unique()%>%
-    ungroup() %>%
+    dplyr::ungroup() %>%
     arrange(cluster,desc(share_stock))
 
   data$label <- data$stock
@@ -584,13 +584,13 @@ clustering_stockshares_plot <- function(data,clustering, min_share=5,label_wrap=
   data$share_level[data$share_stock > .75] <- "very high"
   data$share_level <- factor(data$share_level, levels = c("very high","high","medium","low","minimal"))
   data <- data %>%
-    group_by(cluster) %>%
-    mutate(cum_share=cumsum(share_stock)) %>%
-    ungroup()%>%
+    dplyr::group_by(cluster) %>%
+    dplyr::mutate(cum_share=cumsum(share_stock)) %>%
+    dplyr::ungroup()%>%
     arrange(cluster,share_level,share_stock)
   data$label <- gsub("_"," ",data$label)
 
-  n_vessel <- clustering %>% group_by(cluster) %>% summarise(n_vessel = n_distinct(ship_ID))
+  n_vessel <- clustering %>% dplyr::group_by(cluster) %>% dplyr::summarise(n_vessel = n_distinct(ship_ID))
   n_vessel$cluster <- factor(n_vessel$cluster, levels = rev(clusterlevels))
 
   if(display_cluster_size==F){
@@ -676,19 +676,19 @@ clustering_assemblageshares_plot <- function(data,clustering, min_share=5,label_
   suppressMessages(
     data <- data %>%
       dplyr::filter(ship_ID %in% clustering$ship_ID) %>%
-      mutate(species_code = toupper(sub("\\..*", "", stock))) %>%
-      mutate(species_code = toupper(sub("\\-.*", "", species_code))) %>%
+      dplyr::mutate(species_code = toupper(sub("\\..*", "", stock))) %>%
+      dplyr::mutate(species_code = toupper(sub("\\-.*", "", species_code))) %>%
       left_join(assemblage_red) %>%
-      mutate(target_assemblage_code = ifelse(species_code == "NEP", "CRU",target_assemblage_code),
+      dplyr::mutate(target_assemblage_code = ifelse(species_code == "NEP", "CRU",target_assemblage_code),
              target_assemblage = ifelse(species_code == "NEP", "Crustaceans",target_assemblage),
              target_assemblage_code = replace_na(target_assemblage_code,"UNK"),
              target_assemblage = replace_na(target_assemblage, "unknown")) %>%
       left_join(clustering) %>%
-      group_by(cluster,target_assemblage_code) %>%
-      summarise(catch_cluster = sum(landings)) %>%
-      group_by(cluster) %>%
-      mutate(share_assemblage = catch_cluster/sum(catch_cluster)) %>%
-      unique() %>% ungroup() %>% arrange(cluster, desc(share_assemblage))
+      dplyr::group_by(cluster,target_assemblage_code) %>%
+      dplyr::summarise(catch_cluster = sum(landings)) %>%
+      dplyr::group_by(cluster) %>%
+      dplyr::mutate(share_assemblage = catch_cluster/sum(catch_cluster)) %>%
+      unique() %>% dplyr::ungroup() %>% arrange(cluster, desc(share_assemblage))
   )
 
   data$label <- data$target_assemblage_code
@@ -706,13 +706,13 @@ clustering_assemblageshares_plot <- function(data,clustering, min_share=5,label_
   data$share_level[data$share_assemblage > 0.75] <- "very high"
   data$share_level <- factor(data$share_level, levels = c("very high",
                                                           "high", "medium", "low", "minimal"))
-  data <- data %>% group_by(cluster) %>% mutate(cum_share = cumsum(share_assemblage)) %>%
-    ungroup() %>% arrange(cluster, share_level, share_assemblage)
+  data <- data %>% dplyr::group_by(cluster) %>% dplyr::mutate(cum_share = cumsum(share_assemblage)) %>%
+    dplyr::ungroup() %>% arrange(cluster, share_level, share_assemblage)
   data$label <- gsub("_", " ", data$label)
-  n_vessel <- clustering %>% group_by(cluster) %>% summarise(n_vessel = n_distinct(ship_ID))
+  n_vessel <- clustering %>% dplyr::group_by(cluster) %>% dplyr::summarise(n_vessel = n_distinct(ship_ID))
   n_vessel$cluster <- factor(n_vessel$cluster, levels = rev(clusterlevels))
 
-  n_vessel <- clustering %>% group_by(cluster) %>% summarise(n_vessel = n_distinct(ship_ID))
+  n_vessel <- clustering %>% dplyr::group_by(cluster) %>% dplyr::summarise(n_vessel = n_distinct(ship_ID))
   n_vessel$cluster <- factor(n_vessel$cluster, levels = rev(clusterlevels))
 
   if(display_cluster_size==F){
@@ -790,17 +790,17 @@ single_cluster_stockshares <- function(data,clustering, min_share=5,cluster.numb
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
   #Calculate spec shares
   data <- data %>%
-    group_by(ship_ID) %>%
+    dplyr::group_by(ship_ID) %>%
     left_join(clustering,by="ship_ID") %>%
     dplyr::filter(cluster == levels(cluster)[cluster.number]) %>%
-    group_by(ship_ID,stock) %>%
-    mutate(catch_ship_stock =sum(landings)) %>%
-    group_by(ship_ID) %>%
-    mutate(catch_ship =sum(landings)) %>%
-    group_by(ship_ID,stock) %>%
-    summarise(share_stock = catch_ship_stock/catch_ship) %>%
+    dplyr::group_by(ship_ID,stock) %>%
+    dplyr::mutate(catch_ship_stock =sum(landings)) %>%
+    dplyr::group_by(ship_ID) %>%
+    dplyr::mutate(catch_ship =sum(landings)) %>%
+    dplyr::group_by(ship_ID,stock) %>%
+    dplyr::summarise(share_stock = catch_ship_stock/catch_ship) %>%
     unique()%>%
-    ungroup() %>%
+    dplyr::ungroup() %>%
     arrange(ship_ID,desc(share_stock))
 
   data$label <- data$stock
@@ -819,9 +819,9 @@ single_cluster_stockshares <- function(data,clustering, min_share=5,cluster.numb
   data$share_level[data$share_stock > .75] <- "very high"
   data$share_level <- factor(data$share_level, levels = c("very high","high","medium","low","minimal"))
   data <- data %>%
-    group_by(ship_ID) %>%
-    mutate(cum_share=cumsum(share_stock)) %>%
-    ungroup()%>%
+    dplyr::group_by(ship_ID) %>%
+    dplyr::mutate(cum_share=cumsum(share_stock)) %>%
+    dplyr::ungroup()%>%
     arrange(ship_ID,share_level,share_stock)
   data$label <- gsub("_"," ",data$label)
 
@@ -877,8 +877,8 @@ cluster_size_plot <- function(clustering,subset=NULL){
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
   #plot size of clusters
   clust_size_red <- clustering %>%
-    group_by(cluster)%>%
-    summarise(size = n_distinct(ship_ID))
+    dplyr::group_by(cluster)%>%
+    dplyr::summarise(size = n_distinct(ship_ID))
   clust_size_plot_ymax <- max(clust_size_red$size)+max(clust_size_red$size)*0.15
   clust_number <- n_distinct(clust_size_red$cluster)
   clust_size_red$cluster <- factor(clust_size_red$cluster, levels = c(clusterlevels))
@@ -938,8 +938,8 @@ shiplength_plot <- function(clustering,shiplength,subset=NULL){
   cluster_length$length <- ifelse(cluster_length$unit=="cm",cluster_length$loa/100,cluster_length$loa)
 
   cluster_length <- cluster_length %>%
-    group_by(cluster)%>%
-    mutate(clust_size= n_distinct(ship_ID))
+    dplyr::group_by(cluster)%>%
+    dplyr::mutate(clust_size= n_distinct(ship_ID))
   cluster_length$cluster <- factor(cluster_length$cluster, levels = c(clusterlevels))
   cluster_length <- cluster_length %>% arrange(cluster)
 
@@ -998,11 +998,11 @@ singleship_catch_plot <- function(data, clustering,subset=NULL){
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
   singleships_tons <- data %>%
     left_join(clustering,by="ship_ID") %>%
-    group_by(ship_ID,cluster) %>%
-    summarise(total_landings = sum(landings)) %>%
-    group_by(cluster)%>%
-    mutate(clust_size=n_distinct(ship_ID))%>%
-    ungroup()
+    dplyr::group_by(ship_ID,cluster) %>%
+    dplyr::summarise(total_landings = sum(landings)) %>%
+    dplyr::group_by(cluster)%>%
+    dplyr::mutate(clust_size=n_distinct(ship_ID))%>%
+    dplyr::ungroup()
 
   clust_number <- n_distinct(singleships_tons$cluster)
   singleships_tons$cluster <- factor(singleships_tons$cluster, levels = c(clusterlevels))
@@ -1063,9 +1063,9 @@ clustercatch_plot <- function(data, clustering, subset=NULL){
 
   cluster_tons <- data %>%
     left_join(clustering,by="ship_ID") %>%
-    group_by(cluster) %>%
-    summarise(total_landings = sum(landings)) %>%
-    ungroup()
+    dplyr::group_by(cluster) %>%
+    dplyr::summarise(total_landings = sum(landings)) %>%
+    dplyr::ungroup()
 
   clust_number <- n_distinct(cluster_tons$cluster)
   cluster_tons$cluster <- factor(cluster_tons$cluster, levels = c(clusterlevels))
@@ -1129,8 +1129,8 @@ clustering_plotgrid <- function(data,clustering,shiplength, subset=NULL){
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
   #plot size of clusters
   clust_size_red <- clustering %>%
-    group_by(cluster)%>%
-    summarise(size = n())
+    dplyr::group_by(cluster)%>%
+    dplyr::summarise(size = n())
   clust_size_plot_ymax <- max(clust_size_red$size)+max(clust_size_red$size)*0.15
   clust_size_red$cluster <-factor(clust_size_red$cluster, levels = (clusterlevels))
 
@@ -1146,9 +1146,9 @@ clustering_plotgrid <- function(data,clustering,shiplength, subset=NULL){
 
   #plot length of ships in clusters
   cluster_length <- left_join(clustering,shiplength, by="ship_ID") %>%
-    group_by(cluster) %>%
-    mutate(clust_size = n_distinct(ship_ID)) %>%
-    ungroup()
+    dplyr::group_by(cluster) %>%
+    dplyr::mutate(clust_size = n_distinct(ship_ID)) %>%
+    dplyr::ungroup()
   cluster_length$unit <- ifelse(mean(cluster_length$loa >= 500),"cm","m")
   cluster_length$length <- ifelse(cluster_length$unit=="cm",cluster_length$loa/100,cluster_length$loa)
   cluster_length$cluster <- factor(cluster_length$cluster, levels = c(clusterlevels),ordered = T)
@@ -1168,11 +1168,11 @@ clustering_plotgrid <- function(data,clustering,shiplength, subset=NULL){
     singleships_tons <- dataframe %>%
       left_join(clustering,by="ship_ID") %>%
       drop_na(cluster) %>%
-      group_by(ship_ID,cluster) %>%
-      summarise(total_landings = sum(landings)) %>%
-      group_by(cluster)%>%
-      mutate(clust_size=n_distinct(ship_ID))%>%
-      ungroup()
+      dplyr::group_by(ship_ID,cluster) %>%
+      dplyr::summarise(total_landings = sum(landings)) %>%
+      dplyr::group_by(cluster)%>%
+      dplyr::mutate(clust_size=n_distinct(ship_ID))%>%
+      dplyr::ungroup()
   )
   singleships_tons$cluster <- factor(singleships_tons$cluster, levels = c(clusterlevels),ordered = T)
   singleships_tons <- singleships_tons %>% arrange(cluster)
@@ -1191,9 +1191,9 @@ clustering_plotgrid <- function(data,clustering,shiplength, subset=NULL){
     cluster_tons <- dataframe %>%
       left_join(clustering,by="ship_ID") %>%
       drop_na(cluster) %>%
-      group_by(cluster) %>%
-      summarise(total_landings = sum(landings)) %>%
-      ungroup()
+      dplyr::group_by(cluster) %>%
+      dplyr::summarise(total_landings = sum(landings)) %>%
+      dplyr::ungroup()
   )
   cluster_tons$cluster <- factor(cluster_tons$cluster, levels = c(clusterlevels),ordered = T)
   cluster_tons <- cluster_tons %>% arrange(cluster)
@@ -1242,21 +1242,21 @@ HHI_table <-  function(data, clustering,style="basic"){
     clusterlevels <- c(clusterlevels,levels)
   }
   HHI_stocks <- dataframe %>%
-    group_by(ship_ID) %>%
-    mutate(share_stock = landings/sum(landings))%>%
-    summarise(HHI = sum(share_stock^2)) %>%
+    dplyr::group_by(ship_ID) %>%
+    dplyr::mutate(share_stock = landings/sum(landings))%>%
+    dplyr::summarise(HHI = sum(share_stock^2)) %>%
     left_join(clustering, by="ship_ID")%>%
-    group_by(cluster)%>%
-    summarise(across(HHI,list(median = ~median(.x, na.rm = TRUE), min = ~min(.x, na.rm=T),max = ~max(.x, na.rm=T)))) %>%
-    ungroup()
+    dplyr::group_by(cluster)%>%
+    dplyr::summarise(across(HHI,list(median = ~median(.x, na.rm = TRUE), min = ~min(.x, na.rm=T),max = ~max(.x, na.rm=T)))) %>%
+    dplyr::ungroup()
 
   HHI_clusters <- left_join(dataframe, clustering, by="ship_ID") %>%
-    group_by(cluster, stock) %>%
-    summarise(landings_stock = sum(landings)) %>%
-    group_by(cluster) %>%
-    mutate(share_stock = landings_stock/sum(landings_stock))%>%
-    summarise(HHI_clust = sum(share_stock^2)) %>%
-    ungroup()
+    dplyr::group_by(cluster, stock) %>%
+    dplyr::summarise(landings_stock = sum(landings)) %>%
+    dplyr::group_by(cluster) %>%
+    dplyr::mutate(share_stock = landings_stock/sum(landings_stock))%>%
+    dplyr::summarise(HHI_clust = sum(share_stock^2)) %>%
+    dplyr::ungroup()
 
   HHI <- left_join(HHI_stocks,HHI_clusters, by="cluster")
   HHI$cluster <- factor(HHI$cluster, levels = (clusterlevels))
@@ -1295,9 +1295,9 @@ HHI_plot <- function(data, clustering){
   dataframe <- data
   names(dataframe) <- c("ship_ID","stock","landings")
   HHI_stocks <- dataframe %>%
-    group_by(ship_ID) %>%
-    mutate(share_stock = landings/sum(landings))%>%
-    summarise(HHI_stocks = sum(share_stock^2)) %>%
+    dplyr::group_by(ship_ID) %>%
+    dplyr::mutate(share_stock = landings/sum(landings))%>%
+    dplyr::summarise(HHI_stocks = sum(share_stock^2)) %>%
     left_join(clustering, by="ship_ID")
 
   clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
@@ -1308,16 +1308,16 @@ HHI_plot <- function(data, clustering){
     clusterlevels <- c(clusterlevels,levels)
   }
   HHI_clusters <- left_join(dataframe, clustering, by="ship_ID") %>%
-    group_by(cluster, stock) %>%
-    summarise(landings_stock = sum(landings)) %>%
-    group_by(cluster) %>%
-    mutate(share_stock = landings_stock/sum(landings_stock))%>%
-    summarise(HHI_clusters = sum(share_stock^2)) %>%
-    ungroup()
+    dplyr::group_by(cluster, stock) %>%
+    dplyr::summarise(landings_stock = sum(landings)) %>%
+    dplyr::group_by(cluster) %>%
+    dplyr::mutate(share_stock = landings_stock/sum(landings_stock))%>%
+    dplyr::summarise(HHI_clusters = sum(share_stock^2)) %>%
+    dplyr::ungroup()
 
   HHI_clusters$cluster <- factor(HHI_clusters$cluster, levels = rev(clusterlevels))
 
-  HHI_stocks <- HHI_stocks %>% group_by(cluster) %>% mutate(clust_size = n_distinct(ship_ID))
+  HHI_stocks <- HHI_stocks %>% dplyr::group_by(cluster) %>% dplyr::mutate(clust_size = n_distinct(ship_ID))
 
   HHI_stocks$cluster <- factor(HHI_stocks$cluster, levels = rev(clusterlevels))
   HHI_clusters$cluster <- factor(HHI_clusters$cluster, levels = rev(clusterlevels))
@@ -1372,8 +1372,8 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T, distance="jaccard"
       vegdist(method = distance) %>%
       cmdscale() %>%
       as_tibble() %>%
-      mutate(cluster = catchdata_clustering$cluster)%>%
-      mutate(ship_ID = catchdata_clustering$ship_ID)
+      dplyr::mutate(cluster = catchdata_clustering$cluster)%>%
+      dplyr::mutate(ship_ID = catchdata_clustering$ship_ID)
   )
   mdspalette <- c("#f94144","#f3722c","#f8961e","#f9844a","#f9c74f","#90be6d","#43aa8b","#4d908e","#577590","#277da1",
                   "#360568","#5b2a86","#7785ac","#9ac6c5","#a5e6ba","#dbebc0","#779cab","#627c85","#35524a","#0a2342",
@@ -1384,9 +1384,9 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T, distance="jaccard"
 
   # Plot MDS
   mds_midpoints_cluster <- mds %>%
-    group_by(cluster)%>%
-    mutate(MeanDim1 = mean(Dim.1)) %>%
-    mutate(MeanDim2 = mean(Dim.2))
+    dplyr::group_by(cluster)%>%
+    dplyr::mutate(MeanDim1 = mean(Dim.1)) %>%
+    dplyr::mutate(MeanDim2 = mean(Dim.2))
   mds_midpoints_cluster <- unique(mds_midpoints_cluster[,c("MeanDim1","MeanDim2","cluster")])
   mds_midpoints_cluster$cluster_nr <- as.numeric(gsub("cluster ", "", mds_midpoints_cluster$cluster))
 
@@ -1421,8 +1421,8 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T, distance="jaccard"
         vegdist(method = distance) %>%
         cmdscale(k = 3) %>%
         data.frame() %>%
-        mutate(cluster = catchdata_clustering$cluster)%>%
-        mutate(eunr = catchdata_clustering$ship_ID)
+        dplyr::mutate(cluster = catchdata_clustering$cluster)%>%
+        dplyr::mutate(eunr = catchdata_clustering$ship_ID)
     )
     suppressWarnings(colnames(mds_3d) <- c("Dim.1", "Dim.2","Dim.3","cluster","ship_ID"))
     options(warn = -1)
@@ -1459,24 +1459,24 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
   colnames(clustering) <- c("ship_ID","cluster")
 
   assemblage_df <- data %>%
-    mutate(species_code = toupper(sub("\\..*", "", stock))) %>%
-    mutate(species_code = toupper(sub("\\-.*", "", species_code))) %>%
+    dplyr::mutate(species_code = toupper(sub("\\..*", "", stock))) %>%
+    dplyr::mutate(species_code = toupper(sub("\\-.*", "", species_code))) %>%
     left_join(assemblage_red) %>%
-    mutate(target_assemblage_code = ifelse(species_code == "NEP", "CRU",target_assemblage_code),
+    dplyr::mutate(target_assemblage_code = ifelse(species_code == "NEP", "CRU",target_assemblage_code),
            target_assemblage = ifelse(species_code == "NEP", "Crustaceans",target_assemblage),
            target_assemblage_code = replace_na(target_assemblage_code,"UNK"),
            target_assemblage = replace_na(target_assemblage, "unknown")) %>%
     left_join(clustering) %>%
-    group_by(cluster,target_assemblage_code) %>%
-    summarise(catch_cluster = sum(landings)) %>%
-    group_by(cluster) %>%
-    mutate(share_assemblage = catch_cluster/sum(catch_cluster)) %>%
-    ungroup()
+    dplyr::group_by(cluster,target_assemblage_code) %>%
+    dplyr::summarise(catch_cluster = sum(landings)) %>%
+    dplyr::group_by(cluster) %>%
+    dplyr::mutate(share_assemblage = catch_cluster/sum(catch_cluster)) %>%
+    dplyr::ungroup()
 
   assemblage_matrix <- assemblage_df %>%
     dplyr::select(cluster,target_assemblage_code,share_assemblage) %>%
     pivot_wider(names_from = target_assemblage_code,values_from = share_assemblage,values_fill = 0)%>%
-    ungroup()
+    dplyr::ungroup()
 
   assemblage_table <- as.data.frame(assemblage_matrix)
   assemblage_table <- assemblage_table[,-1]
@@ -3388,10 +3388,10 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
 
 
   if(reduce==T & auto.generate==F){
-    dataframe_red <- dataframe_join %>% group_by(ship_ID, stock) %>% summarise(landings = sum(landkg)) %>% ungroup()
+    dataframe_red <- dataframe_join %>% dplyr::group_by(ship_ID, stock) %>% dplyr::summarise(landings = sum(landkg)) %>% dplyr::ungroup()
   }
   if(reduce==F & auto.generate==F){
-    dataframe_red <- dataframe_join %>% group_by(ship_ID,species,area, stock) %>% summarise(landings = sum(landkg)) %>% ungroup()
+    dataframe_red <- dataframe_join %>% dplyr::group_by(ship_ID,species,area, stock) %>% dplyr::summarise(landings = sum(landkg)) %>% dplyr::ungroup()
   }
   if(reduce==T & auto.generate==T){
     dataframe_red_I <- dataframe_join
@@ -3404,11 +3404,11 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
     dataframe_red_I$major.area[is.na(dataframe_red_I$major.area)] <-strtrim(dataframe_red_I$area[is.na(dataframe_red_I$major.area)], 4)
 
     dataframe_red_I <- dataframe_red_I %>%
-      group_by(ship_ID,species,area,major.area, stock) %>%
-      summarise(landings = sum(landkg)) %>%
-      group_by(species,major.area, stock) %>%
-      mutate(total_landings = sum(landings)) %>%
-      ungroup()
+      dplyr::group_by(ship_ID,species,area,major.area, stock) %>%
+      dplyr::summarise(landings = sum(landkg)) %>%
+      dplyr::group_by(species,major.area, stock) %>%
+      dplyr::mutate(total_landings = sum(landings)) %>%
+      dplyr::ungroup()
     unknowns <- dplyr::filter(dataframe_red_I, stock == "Bycatch/Unknown" & total_landings >= threshold.auto.generate)
     unknowns$species_lower <- tolower(unknowns$species)
     unknowns$area_red <- NA
@@ -3422,8 +3422,8 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
 
     dataframe_red_II <- anti_join(dataframe_red_I,unknowns_mod,by=c("species","area"))
 
-    unknowns_mod_red <- unknowns_mod %>% group_by(ship_ID,stock) %>% summarise(landings=sum(landings)) %>% ungroup()
-    dataframe_red_III <- dataframe_red_II %>% group_by(ship_ID,stock) %>% summarise(landings=sum(landings)) %>% ungroup()
+    unknowns_mod_red <- unknowns_mod %>% dplyr::group_by(ship_ID,stock) %>% dplyr::summarise(landings=sum(landings)) %>% dplyr::ungroup()
+    dataframe_red_III <- dataframe_red_II %>% dplyr::group_by(ship_ID,stock) %>% dplyr::summarise(landings=sum(landings)) %>% dplyr::ungroup()
 
     dataframe_red <- rbind(unknowns_mod_red,dataframe_red_III)
   }
@@ -3438,11 +3438,11 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
     dataframe_red_I$major.area[is.na(dataframe_red_I$major.area)] <-strtrim(dataframe_red_I$area[is.na(dataframe_red_I$major.area)], 4)
 
     dataframe_red_I <- dataframe_red_I %>%
-      group_by(ship_ID,species,area,major.area, stock) %>%
-      summarise(landings = sum(landkg)) %>%
-      group_by(species,major.area, stock) %>%
-      mutate(total_landings = sum(landings)) %>%
-      ungroup()
+      dplyr::group_by(ship_ID,species,area,major.area, stock) %>%
+      dplyr::summarise(landings = sum(landkg)) %>%
+      dplyr::group_by(species,major.area, stock) %>%
+      dplyr::mutate(total_landings = sum(landings)) %>%
+      dplyr::ungroup()
     unknowns <- dplyr::filter(dataframe_red_I, stock == "Bycatch/Unknown" & total_landings >= threshold.auto.generate)
     unknowns$species_lower <- tolower(unknowns$species)
     unknowns$area_red <- NA
@@ -3456,17 +3456,17 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
 
     dataframe_red_II <- anti_join(dataframe_red_I,unknowns_mod,by=c("species","area"))
 
-    unknowns_mod_red <- unknowns_mod %>% group_by(ship_ID,species,area, stock) %>% summarise(landings=sum(landings)) %>% ungroup()
-    dataframe_red_III <- dataframe_red_II %>% group_by(ship_ID,species,area, stock) %>% summarise(landings=sum(landings)) %>% ungroup()
+    unknowns_mod_red <- unknowns_mod %>% dplyr::group_by(ship_ID,species,area, stock) %>% dplyr::summarise(landings=sum(landings)) %>% dplyr::ungroup()
+    dataframe_red_III <- dataframe_red_II %>% dplyr::group_by(ship_ID,species,area, stock) %>% dplyr::summarise(landings=sum(landings)) %>% dplyr::ungroup()
 
     dataframe_red <- rbind(unknowns_mod_red,dataframe_red_III)
   }
 
   dataframe_red_minimals <- dataframe_red %>%
-    group_by(ship_ID,stock) %>%
-    summarise(landings=sum(landings)) %>%
-    group_by(ship_ID) %>%
-    mutate(share_stock=landings/sum(landings)) %>%
+    dplyr::group_by(ship_ID,stock) %>%
+    dplyr::summarise(landings=sum(landings)) %>%
+    dplyr::group_by(ship_ID) %>%
+    dplyr::mutate(share_stock=landings/sum(landings)) %>%
     dplyr::filter(share_stock >= (min.share/100))
 
   dataframe_red <- dplyr::filter(dataframe_red, stock %in% dataframe_red_minimals$stock)
@@ -3526,9 +3526,9 @@ segmentation_datapreparation <- function(fleetdata,vessel_ID,shiplength, gear,sp
 
   suppressMessages(
     data_red <- data %>%
-      group_by({{vessel_ID}},{{gear}},{{species}},{{area}}) %>%
-      summarise(landings = sum({{catch}})) %>%
-      ungroup())
+      dplyr::group_by({{vessel_ID}},{{gear}},{{species}},{{area}}) %>%
+      dplyr::summarise(landings = sum({{catch}})) %>%
+      dplyr::ungroup())
   suppressMessages(
     for (i in seq_along(levels(data$gear)))   {
       data_split <- data_red %>%
