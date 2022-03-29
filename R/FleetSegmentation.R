@@ -3524,7 +3524,7 @@ segmentation_datapreparation <- function(fleetdata,vessel_ID,shiplength, gear,sp
   
   suppressMessages(
     data_red <- data %>%
-      dplyr::mutate({{gear}} <-as.factor({{gear}})) %>%
+      dplyr::mutate({{gear}} = as.factor({{gear}})) %>%
       dplyr::group_by({{vessel_ID}},{{gear}},{{species}},{{area}}) %>%
       dplyr::summarise(landings = sum({{catch}})) %>%
       dplyr::ungroup())
