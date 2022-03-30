@@ -953,7 +953,7 @@ shiplength_plot <- function(clustering,shiplength,subset=NULL){
     scale_x_discrete(labels=labels)+
     scale_y_continuous(limits = c(0,(max(cluster_length$length)*1.2)))
 
-  clust_length_plot
+  cluster_length_plot
 }
 
 
