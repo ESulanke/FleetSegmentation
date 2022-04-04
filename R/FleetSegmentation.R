@@ -3350,15 +3350,18 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
   names(MED_stocks_wdf) <- c(c("species","area","stock"))
   dataframe_nostock <- dataframe[,-which(names(dataframe) %in% c("stock"))]
 
+  suppressMessages(
   dataframe_med <- left_join(dataframe_nostock,MED_stocks_wdf)
+  )
   dataframe_med <- dataframe_med[!is.na(dataframe_med$stock),]
-
+  suppressMessages(
   if(nrow(dataframe_med)>0){
     dataframe_bind <- anti_join(dataframe,dataframe_med, by=c("ship_ID","species","area"))
     dataframe_join <- rbind(dataframe_bind,dataframe_med)
   } else{
     dataframe_join <- dataframe
   }
+  )
 
   ## Include the ICCAT tuna and shark bycatch species
   ICCAT_Bycatch <- c("ASM","BAU","BBM","BEP","BIL","BIP","BKJ","BLF","BLM","BLT","BON",
@@ -3434,12 +3437,15 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
                                     unique(grep(paste0("34.4.1|34.3.3|34.3.4|34.3.5|34.3.6|41.|47.|48.6"),dataframe_join$area,value = T))],"-SE")
 
 
+
   if(reduce==T & auto.generate==F){
+    suppressMessages(
     dataframe_red <- dataframe_join %>% dplyr::group_by(ship_ID, stock) %>% dplyr::summarise(landings = sum(landkg)) %>% dplyr::ungroup()
-  }
+    )}
   if(reduce==F & auto.generate==F){
+    suppressMessages(
     dataframe_red <- dataframe_join %>% dplyr::group_by(ship_ID,species,area, stock) %>% dplyr::summarise(landings = sum(landkg)) %>% dplyr::ungroup()
-  }
+  )}
   if(reduce==T & auto.generate==T){
     dataframe_red_I <- dataframe_join
     dataframe_red_I$major.area <- NA
@@ -3450,12 +3456,13 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
                                          dataframe_red_I$major.area)
     dataframe_red_I$major.area[is.na(dataframe_red_I$major.area)] <-strtrim(dataframe_red_I$area[is.na(dataframe_red_I$major.area)], 4)
 
+    suppressMessages(
     dataframe_red_I <- dataframe_red_I %>%
       dplyr::group_by(ship_ID,species,area,major.area, stock) %>%
       dplyr::summarise(landings = sum(landkg)) %>%
       dplyr::group_by(species,major.area, stock) %>%
       dplyr::mutate(total_landings = sum(landings)) %>%
-      dplyr::ungroup()
+      dplyr::ungroup())
     unknowns <- dplyr::filter(dataframe_red_I, stock == "Bycatch/Unknown" & total_landings >= threshold.auto.generate)
     unknowns$species_lower <- tolower(unknowns$species)
     unknowns$area_red <- NA
@@ -3467,8 +3474,9 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
     unknowns$area_red[is.na(unknowns$area_red)] <-strtrim(unknowns$area[is.na(unknowns$area_red)], 4)
     unknowns_mod <- unite(unknowns, stock, c("species_lower","area_red"),sep = ".",remove = F)
 
+    suppressMessages(
     dataframe_red_II <- anti_join(dataframe_red_I,unknowns_mod,by=c("species","area"))
-
+    )
     unknowns_mod_red <- unknowns_mod %>% dplyr::group_by(ship_ID,stock) %>% dplyr::summarise(landings=sum(landings)) %>% dplyr::ungroup()
     dataframe_red_III <- dataframe_red_II %>% dplyr::group_by(ship_ID,stock) %>% dplyr::summarise(landings=sum(landings)) %>% dplyr::ungroup()
 
@@ -3484,12 +3492,14 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
                                          dataframe_red_I$major.area)
     dataframe_red_I$major.area[is.na(dataframe_red_I$major.area)] <-strtrim(dataframe_red_I$area[is.na(dataframe_red_I$major.area)], 4)
 
-    dataframe_red_I <- dataframe_red_I %>%
+    suppressMessages(
+      dataframe_red_I <- dataframe_red_I %>%
       dplyr::group_by(ship_ID,species,area,major.area, stock) %>%
       dplyr::summarise(landings = sum(landkg)) %>%
       dplyr::group_by(species,major.area, stock) %>%
       dplyr::mutate(total_landings = sum(landings)) %>%
       dplyr::ungroup()
+    )
     unknowns <- dplyr::filter(dataframe_red_I, stock == "Bycatch/Unknown" & total_landings >= threshold.auto.generate)
     unknowns$species_lower <- tolower(unknowns$species)
     unknowns$area_red <- NA
@@ -3501,7 +3511,9 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
     unknowns$area_red[is.na(unknowns$area_red)] <-strtrim(unknowns$area[is.na(unknowns$area_red)], 4)
     unknowns_mod <- unite(unknowns, stock, c("species_lower","area_red"),sep = ".",remove = F)
 
+    suppressMessages(
     dataframe_red_II <- anti_join(dataframe_red_I,unknowns_mod,by=c("species","area"))
+    )
 
     unknowns_mod_red <- unknowns_mod %>% dplyr::group_by(ship_ID,species,area, stock) %>% dplyr::summarise(landings=sum(landings)) %>% dplyr::ungroup()
     dataframe_red_III <- dataframe_red_II %>% dplyr::group_by(ship_ID,species,area, stock) %>% dplyr::summarise(landings=sum(landings)) %>% dplyr::ungroup()
@@ -3509,13 +3521,14 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
     dataframe_red <- rbind(unknowns_mod_red,dataframe_red_III)
   }
 
+  suppressMessages(
   dataframe_red_minimals <- dataframe_red %>%
     dplyr::group_by(ship_ID,stock) %>%
     dplyr::summarise(landings=sum(landings)) %>%
     dplyr::group_by(ship_ID) %>%
     dplyr::mutate(share_stock=landings/sum(landings)) %>%
     dplyr::filter(share_stock >= (min.share/100))
-
+  )
   dataframe_red <- dplyr::filter(dataframe_red, stock %in% dataframe_red_minimals$stock)
 
 
@@ -3585,7 +3598,6 @@ segmentation_datapreparation <- function(fleetdata,vessel_ID,shiplength, gear,sp
       dplyr::summarise(landings = sum({{catch}})) %>%
       dplyr::ungroup())
 
-  suppressMessages(
     for (i in seq_along(levels(data$gear)))   {
       data_split <- data_red %>%
         group_split(gear,.keep = F)
@@ -3595,7 +3607,6 @@ segmentation_datapreparation <- function(fleetdata,vessel_ID,shiplength, gear,sp
       assign(levels(data$gear)[i],tempII,.GlobalEnv)
       remove(temp,tempII)
     }
-  )
   cat(str_to_title(numbers_to_words(n_distinct(data$gear))),"gear class dataframes and a shiplength dataframe have been created.")
 
 }
