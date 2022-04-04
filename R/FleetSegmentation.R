@@ -1584,7 +1584,7 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
 
   if (anyNA(dataframe$species) == T){
     NAs <- dataframe %>%
-      filter(is.na(species))
+      dplyr::filter(is.na(species))
 
     NAsum <- sum(NAs$landkg)
     warning(paste0("Your data frame contains landing weights of unknown species adding up to ",(NAsum),"kg !"))
