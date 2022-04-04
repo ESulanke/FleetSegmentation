@@ -3566,7 +3566,7 @@ segmentation_datapreparation <- function(fleetdata,vessel_ID,shiplength, gear,sp
   data <- data %>% dplyr::rename(gear = {{gear}})
   data$gear <- as.factor(data$gear)
 
-  data$vessel_ID <- data(data_red$vessel_ID)
+  data$vessel_ID <- as.character(data$vessel_ID)
 
   suppressMessages(
     data_red <- data %>%
