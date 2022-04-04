@@ -12,6 +12,7 @@ Description: This package contains functions for a multivariate approach to the 
 License: MIT + file LICENSE
 Depends: 
     knitr,
+    plotly,
     kableExtra,
     RColorBrewer,
     ellipsis,
@@ -34,7 +35,6 @@ Depends:
     ade4,
     BBmisc,
     clustree,
-    plotly,
     networkD3,
     htmlwidgets,
     labdsv,

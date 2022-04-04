@@ -1,4 +1,5 @@
 #' @import knitr
+#' @import plotly
 #' @import kableExtra
 #' @import RColorBrewer
 #' @import ellipsis
@@ -20,7 +21,6 @@
 #' @import ade4
 #' @import BBmisc
 #' @import clustree
-#' @import plotly
 #' @import networkD3
 #' @import htmlwidgets
 #' @import labdsv
@@ -1501,10 +1501,12 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
     theme(axis.title = element_blank())
 
   if(GoF==T){
-    return(assemblage_mds + geom_label(data=tibble(),aes(GOF_x_pos,GOF_y_pos,label=GOF_label),colour="black",size=4,fontface="bold", alpha=.5))
+    return(supress_messages(
+      assemblage_mds +
+        geom_label(data=tibble(),aes(GOF_x_pos,GOF_y_pos,label=GOF_label),colour="black",size=4,fontface="bold", alpha=.5)))
   }
   else{
-    return(assemblage_mds)
+    return(supress_messages(assemblage_mds))
   }
 }
 
@@ -3522,8 +3524,8 @@ segmentation_datapreparation <- function(fleetdata,vessel_ID,shiplength, gear,sp
     dplyr::rename(vessel_ID = {{vessel_ID}}, shiplength = {{shiplength}}) %>%
     unique()
 
-data <- data %>% dplyr::rename(gear = {{gear}})
-data$gear <- as.factor(data$gear)
+  data <- data %>% dplyr::rename(gear = {{gear}})
+  data$gear <- as.factor(data$gear)
 
   suppressMessages(
     data_red <- data %>%
