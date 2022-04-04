@@ -59,6 +59,10 @@ globalVariables(c("Dim.1" ,"Dim.2", "MED_stocks", "MeanDim1", "MeanDim2" ,"area"
 #' catchdata <- catchdata_transformation(data = stockdata)
 catchdata_transformation <- function(data){
   names(data)<-c("ship_ID","stock","landings")
+
+  data <- data %>%
+    mutate(ship_ID =as.character(ship_ID))
+
   stocks_sum <- data %>%
     dplyr::group_by(ship_ID, stock) %>%
     dplyr::summarise(weight_landed = sum(landings)) %>%
@@ -447,6 +451,7 @@ segmentation_clustering <- function(catchdata,n_cluster, distance = "jaccard",me
     clusterlevels <- c(clusterlevels,levels)
   }
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels),ordered = T)
+  clustering$ship_ID <- as.character(clustering$ship_ID)
   return(clustering)
 }
 
@@ -472,6 +477,11 @@ segmentation_clustering <- function(catchdata,n_cluster, distance = "jaccard",me
 #' segments_stockshares <- clustering_stockshares_table(data = stockdata,clustering = clustering)
 clustering_stockshares_table <- function(data,clustering, style="basic"){
   names(data) <- c("ship_ID","stock","landings")
+
+  dataframe <- data
+  colnames(dataframe) <- c("ship_ID","stock","landings")
+  colnames(clustering) <- c("ship_ID","cluster")
+
   clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
   clusterlevels <- c()
   for (x in 1:clust_number) {
@@ -480,7 +490,7 @@ clustering_stockshares_table <- function(data,clustering, style="basic"){
   }
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
   #Calculate spec shares
-  data <- data %>%
+  data <- dataframe %>%
     dplyr::group_by(ship_ID) %>%
     left_join(clustering,by="ship_ID") %>%
     dplyr::group_by(cluster,stock) %>%
@@ -550,6 +560,10 @@ clustering_stockshares_plot <- function(data,clustering, min_share=5,label_wrap=
   dataframe <- data
   colnames(dataframe) <- c("ship_ID","stock","landings")
   colnames(clustering) <- c("ship_ID","cluster")
+
+  dataframe <- dataframe %>%
+    mutate(ship_ID =as.character(ship_ID))
+
   clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
   clusterlevels <- paste("cluster",labels,sep = " ")
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
@@ -667,6 +681,10 @@ clustering_assemblageshares_plot <- function(data,clustering, min_share=5,label_
   dataframe <- data
   colnames(dataframe) <- c("ship_ID","stock","landings")
   colnames(clustering) <- c("ship_ID","cluster")
+
+  data <- data %>%
+    mutate(ship_ID =as.character(ship_ID))
+
   clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
   clusterlevels <- paste("cluster",labels,sep = " ")
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
@@ -780,7 +798,11 @@ clustering_assemblageshares_plot <- function(data,clustering, min_share=5,label_
 #' clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
 #' single_cluster_stockshares(data = stockdata,clustering = clustering, cluster.number=1)
 single_cluster_stockshares <- function(data,clustering, min_share=5,cluster.number,label_wrap=15){
-  names(data) <- c("ship_ID","stock","landings")
+
+  dataframe <- data
+  colnames(dataframe) <- c("ship_ID","stock","landings")
+  colnames(clustering) <- c("ship_ID","cluster")
+
   clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
   clusterlevels <- c()
   for (x in 1:clust_number) {
@@ -913,7 +935,9 @@ cluster_size_plot <- function(clustering,subset=NULL){
 #' clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
 #' shiplength_plot(clustering = clustering,shiplength = example_lengthdata)
 shiplength_plot <- function(clustering,shiplength,subset=NULL){
+  colnames(clustering) <- c("ship_ID","cluster")
   names(shiplength)<-c("ship_ID","loa")
+  shiplength$ship_ID <- as.character(shiplength$ship_ID)
   if(length(subset) == 1){
     clustering <- clustering %>%
       dplyr::filter(cluster == levels(cluster)[subset])
@@ -993,6 +1017,7 @@ singleship_catch_plot <- function(data, clustering,subset=NULL){
 
   dataframe <- data
   colnames(dataframe) <- c("ship_ID","stock","landings")
+  dataframe$ship_ID <- as.character(dataframe$ship_ID)
   clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
   clusterlevels <- paste("cluster",labels,sep = " ")
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
@@ -1057,6 +1082,7 @@ clustercatch_plot <- function(data, clustering, subset=NULL){
 
   dataframe <- data
   colnames(dataframe) <- c("ship_ID","stock","landings")
+  dataframe$ship_ID <- as.character(dataframe$ship_ID)
   clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
   clusterlevels <- paste("cluster",labels,sep = " ")
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
@@ -1124,6 +1150,11 @@ clustering_plotgrid <- function(data,clustering,shiplength, subset=NULL){
   dataframe <- data
   colnames(shiplength)<-c("ship_ID","loa")
   colnames(dataframe) <- c("ship_ID","stock","landings")
+
+  dataframe$ship_ID <- as.character(dataframe$ship_ID)
+  shiplength$ship_ID <- as.character(shiplength$ship_ID)
+
+
   clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
   clusterlevels <- paste("cluster",labels,sep = " ")
   clustering$cluster <- factor(clustering$cluster, levels = (clusterlevels))
@@ -1234,6 +1265,7 @@ clustering_plotgrid <- function(data,clustering,shiplength, subset=NULL){
 HHI_table <-  function(data, clustering,style="basic"){
   dataframe <- data
   names(dataframe) <- c("ship_ID","stock","landings")
+  dataframe$ship_ID <- as.character(dataframe$ship_ID)
   clust_number <- as.numeric(n_distinct(as.character(clustering$cluster)))
 
   clusterlevels <- c()
@@ -1294,6 +1326,7 @@ HHI_table <-  function(data, clustering,style="basic"){
 HHI_plot <- function(data, clustering){
   dataframe <- data
   names(dataframe) <- c("ship_ID","stock","landings")
+  dataframe$ship_ID <- as.character(dataframe$ship_ID)
   HHI_stocks <- dataframe %>%
     dplyr::group_by(ship_ID) %>%
     dplyr::mutate(share_stock = landings/sum(landings))%>%
@@ -1457,6 +1490,7 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
 
   colnames(data) <- c("ship_ID","stock","landings")
   colnames(clustering) <- c("ship_ID","cluster")
+  data$ship_ID <- as.character(data$ship_ID)
 
   assemblage_df <- data %>%
     dplyr::mutate(species_code = toupper(sub("\\..*", "", stock))) %>%
@@ -1545,6 +1579,7 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
   dataframe <- data
   # Code for assigning stocks
   names(dataframe) <- c("ship_ID","species","area","landkg")
+  dataframe$ship_ID <- as.character(dataframe$ship_ID)
   dataframe$stock <- "Bycatch/Unknown"
   dataframe$area <- gsub(pattern = ",",replacement = ".",x = dataframe$area)
   dataframe$area <- gsub(pattern = ";",replacement = ".",x = dataframe$area)
@@ -3518,6 +3553,10 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
 
 segmentation_datapreparation <- function(fleetdata,vessel_ID,shiplength, gear,species,area,catch,
                                          reduce=T,auto.generate=T,threshold.auto.generate=100, min.share=0){
+  if(anyNA(fleetdata) == T){
+    warning("Your data frame contains NA values or empty cells!")
+  }
+
   data <- fleetdata
   shiplength <<- data %>%
     dplyr::select({{vessel_ID}},{{shiplength}})  %>%
@@ -3526,6 +3565,8 @@ segmentation_datapreparation <- function(fleetdata,vessel_ID,shiplength, gear,sp
 
   data <- data %>% dplyr::rename(gear = {{gear}})
   data$gear <- as.factor(data$gear)
+
+  data$vessel_ID <- data(data_red$vessel_ID)
 
   suppressMessages(
     data_red <- data %>%
