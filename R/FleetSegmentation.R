@@ -1579,13 +1579,13 @@ assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generat
 
   dataframe <- data
   # Code for assigning stocks
-  names(dataframe) <- c("ship_ID","species","area","landkg")
+  colnames(dataframe) <- c("ship_ID","species","area","landkg")
   dataframe$ship_ID <- as.character(dataframe$ship_ID)
 
-  NAs <- dataframe %>%
-    filter(is.na(landkg))
+  if (anyNA(dataframe$landkg) == T){
+    NAs <- dataframe %>%
+      filter(is.na(landkg))
 
-  if (sum(NAs$landkg) > 0){
     NAsum <- sum(NAs$landkg)
     warning(paste0("Your data frame contains unknown landing weights adding up to ",(NAsum),"kg !"))
   }
