@@ -1576,10 +1576,23 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
 #' stockdata <- assign_stocks(data=data)
 #' stockdata <- assign_stocks(data=data, reduce=FALSE, auto.generate=FALSE)
 assign_stocks <- function(data, reduce=T, auto.generate=T,threshold.auto.generate=100,min.share=0){
+
+  NAs <- data %>%
+    filter(is.na())
+
   dataframe <- data
   # Code for assigning stocks
   names(dataframe) <- c("ship_ID","species","area","landkg")
   dataframe$ship_ID <- as.character(dataframe$ship_ID)
+
+  NAs <- dataframe %>%
+    filter(is.na(landkg))
+
+  if (sum(NAs$landkg) > 0){
+    NAsum <- sum(NAs$landkg)
+    warning(paste0("Your data frame contains unknown landing weights adding up to ",(NAsum),"kg !"))
+  }
+
   dataframe$stock <- "Bycatch/Unknown"
   dataframe$area <- gsub(pattern = ",",replacement = ".",x = dataframe$area)
   dataframe$area <- gsub(pattern = ";",replacement = ".",x = dataframe$area)
