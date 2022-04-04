@@ -3563,7 +3563,7 @@ segmentation_datapreparation <- function(fleetdata,vessel_ID,shiplength, gear,sp
     dplyr::rename(vessel_ID = {{vessel_ID}}, shiplength = {{shiplength}}) %>%
     unique()
 
-  data <- data %>% dplyr::rename(gear = {{gear}})
+  data <- data %>% dplyr::rename(gear = {{gear}},vessel_ID = {{vessel_ID}}, shiplength = {{shiplength}})
   data$gear <- as.factor(data$gear)
 
   data$vessel_ID <- as.character(data$vessel_ID)
