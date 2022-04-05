@@ -1485,7 +1485,6 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T, distance="jaccard"
 #' clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
 #' cluster_assemblages_MDS(data =data, catchdata = catchdata,clustering = clustering, GoF=TRUE)
 cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF=T, distance="jaccard",dim=2){
-
   assemblage_red <- assemblage %>%
     dplyr::select(species_code,target_assemblage_code,target_assemblage)
 
@@ -1493,6 +1492,7 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
   colnames(clustering) <- c("ship_ID","cluster")
   data$ship_ID <- as.character(data$ship_ID)
 
+  suppressMessages(
   assemblage_df <- data %>%
     dplyr::mutate(species_code = toupper(sub("\\..*", "", stock))) %>%
     dplyr::mutate(species_code = toupper(sub("\\-.*", "", species_code))) %>%
@@ -1507,7 +1507,7 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
     dplyr::group_by(cluster) %>%
     dplyr::mutate(share_assemblage = catch_cluster/sum(catch_cluster)) %>%
     dplyr::ungroup()
-
+  )
   assemblage_matrix <- assemblage_df %>%
     dplyr::select(cluster,target_assemblage_code,share_assemblage) %>%
     pivot_wider(names_from = target_assemblage_code,values_from = share_assemblage,values_fill = 0)%>%
@@ -1536,20 +1536,15 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
     theme(axis.title = element_blank())
 
   if(GoF==T & interactive == F){
-    suppressMessages(
+    return(
       assemblage_mds +
         geom_label(data=tibble(),aes(GOF_x_pos,GOF_y_pos,label=GOF_label),colour="black",size=4,fontface="bold", alpha=.5))
   }
   if(GoF==F & interactive == F){
-    suppressMessages(assemblage_mds)
+    return(assemblage_mds)
   }
-  if(GoF==T & interactive == T){
-    suppressMessages(ggplotly(
-      assemblage_mds +
-        geom_label(data=tibble(),aes(GOF_x_pos,GOF_y_pos,label=GOF_label),colour="black",size=4,fontface="bold", alpha=.5)))
-    }
-  if(GoF==F & interactive == T){
-    suppressMessages(ggplotly(assemblage_mds))
+  if(interactive == T){
+    return(ggplotly(assemblage_mds))
   }
   if(dim==3){
     suppressWarnings(
