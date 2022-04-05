@@ -1536,20 +1536,20 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
     theme(axis.title = element_blank())
 
   if(GoF==T & interactive == F){
-    return(supress_messages(
+    return(suppressMessages(
       assemblage_mds +
         geom_label(data=tibble(),aes(GOF_x_pos,GOF_y_pos,label=GOF_label),colour="black",size=4,fontface="bold", alpha=.5)))
   }
   if(GoF==F & interactive == F){
-    return(supress_messages(assemblage_mds))
+    return(suppressMessages(assemblage_mds))
   }
   if(GoF==T & interactive == F){
-    return(supress_messages(plot_ly(
+    return(suppressMessages(plot_ly(
       assemblage_mds +
         geom_label(data=tibble(),aes(GOF_x_pos,GOF_y_pos,label=GOF_label),colour="black",size=4,fontface="bold", alpha=.5)))
     )}
   if(GoF==F & interactive == T){
-    return(supress_messages(plot_ly(assemblage_mds)))
+    return(suppressMessages(plot_ly(assemblage_mds)))
   }
   if(dim==3){
     suppressWarnings(
