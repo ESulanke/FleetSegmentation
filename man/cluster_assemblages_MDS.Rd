@@ -10,7 +10,8 @@ cluster_assemblages_MDS(
   clustering,
   interactive = F,
   GoF = T,
-  distance = "jaccard"
+  distance = "jaccard",
+  dim = 2
 )
 }
 \arguments{

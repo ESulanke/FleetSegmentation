@@ -1473,6 +1473,7 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T, distance="jaccard"
 #' @param clustering The result of the clustering procedure, stored as a data frame.
 #' @param dim The dimensions of the MDS. Use `2` for a 2-dimensional, classic MDS and `3` for a 3-dimensional MDS.
 #' @param GoF Display goodness of fit in the MDS plot. Defaults to TRUE
+#' @param dim The dimensions of the MDS. Use `2` for a 2-dimensional, classic MDS and `3` for a 3-dimensional MDS.
 #' @param distance The distance measure used. Defaults to modified (metric conversion) Bray-Curtis distance distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!
 #' @keywords clustering
 #' @keywords MDS
@@ -1483,7 +1484,7 @@ clustering_MDS <- function(catchdata,clustering, dim=2,GoF=T, distance="jaccard"
 #' catchdata <- catchdata_transformation(data = stockdata)
 #' clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
 #' cluster_assemblages_MDS(data =data, catchdata = catchdata,clustering = clustering, GoF=TRUE)
-cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF=T, distance="jaccard"){
+cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF=T, distance="jaccard",dim=2){
 
   assemblage_red <- assemblage %>%
     dplyr::select(species_code,target_assemblage_code,target_assemblage)
@@ -1520,7 +1521,7 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
   mds.assemblage$names <- rownames(mds.assemblage)
 
   # get goodness of fit
-  fit <- suppressWarnings(cmdscale(vegdist(catchdata,method=distance),T, k=2)) # k is the number of dim
+  fit <- suppressWarnings(cmdscale(vegdist(assemblage_table,method=distance),T, k=2)) # k is the number of dim
   GOF <- fit$GOF[1]
   GOF_x_pos <- max(mds.assemblage[1])*.7
   GOF_y_pos <- max(mds.assemblage[2])*.9
@@ -1534,13 +1535,34 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
     theme_minimal()+
     theme(axis.title = element_blank())
 
-  if(GoF==T){
+  if(GoF==T & interactive == F){
     return(supress_messages(
       assemblage_mds +
         geom_label(data=tibble(),aes(GOF_x_pos,GOF_y_pos,label=GOF_label),colour="black",size=4,fontface="bold", alpha=.5)))
   }
-  else{
+  if(GoF==F & interactive == F){
     return(supress_messages(assemblage_mds))
+  }
+  if(GoF==T & interactive == F){
+    return(supress_messages(plot_ly(
+      assemblage_mds +
+        geom_label(data=tibble(),aes(GOF_x_pos,GOF_y_pos,label=GOF_label),colour="black",size=4,fontface="bold", alpha=.5)))
+    )}
+  if(GoF==F & interactive == T){
+    return(supress_messages(plot_ly(assemblage_mds)))
+  }
+  if(dim==3){
+    suppressWarnings(
+      mds_3d <- assemblage_table %>%
+        vegdist(method = distance) %>%
+        cmdscale(k = 3) %>%
+        data.frame() %>%
+        dplyr::mutate(cluster = catchdata_clustering$cluster)%>%
+        dplyr::mutate(eunr = catchdata_clustering$ship_ID)
+    )
+    suppressWarnings(colnames(mds_3d) <- c("Dim.1", "Dim.2","Dim.3","cluster","ship_ID"))
+    options(warn = -1)
+    return(suppressWarnings(plot_ly(data = mds_3d,x=~Dim.1, y=~Dim.2, z=~Dim.3, type="scatter3d",mode="markers",color = ~cluster,colors = mdspalette)))
   }
 }
 
