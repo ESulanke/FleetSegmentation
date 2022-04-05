@@ -1535,6 +1535,8 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
     theme_minimal()+
     theme(axis.title = element_blank())
 
+  if(dim == 2){
+
   if(GoF==T & interactive == F){
     return(
       assemblage_mds +
@@ -1546,7 +1548,12 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
   if(interactive == T){
     return(ggplotly(assemblage_mds))
   }
+  }
   if(dim==3){
+    mdspalette <- c("#f94144","#f3722c","#f8961e","#f9844a","#f9c74f","#90be6d","#43aa8b","#4d908e","#577590","#277da1",
+                    "#360568","#5b2a86","#7785ac","#9ac6c5","#a5e6ba","#dbebc0","#779cab","#627c85","#35524a","#0a2342",
+                    "#e54b4b","#f46197","#efc3f5","#e28413","#ba9593","#cf0e12","#757761","#51bbfe","#94ecbe","#003459",
+                    "#eefc57","#e2a0ff","#32de8a","#e87ea1","#53f4ff")
     suppressWarnings(
       mds_3d <- assemblage_table %>%
         vegdist(method = distance) %>%
