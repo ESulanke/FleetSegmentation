@@ -1559,8 +1559,8 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
         vegdist(method = distance) %>%
         cmdscale(k = 3) %>%
         data.frame() %>%
-        dplyr::mutate(cluster = catchdata_clustering$cluster)%>%
-        dplyr::mutate(eunr = catchdata_clustering$ship_ID)
+        dplyr::mutate(cluster = assemblage_matrix$cluster)%>%
+        dplyr::mutate(eunr = data$ship_ID)
     )
     suppressWarnings(colnames(mds_3d) <- c("Dim.1", "Dim.2","Dim.3","cluster","ship_ID"))
     options(warn = -1)
