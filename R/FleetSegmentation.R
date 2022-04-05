@@ -1566,7 +1566,7 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
         data.frame()
       )
 
-      mds_3d$cluster <- rownames(msd_3d)
+      mds_3d$cluster <- rownames(mds_3d)
 
     suppressWarnings(colnames(mds_3d) <- c("Dim.1", "Dim.2","Dim.3","cluster"))
     options(warn = -1)
