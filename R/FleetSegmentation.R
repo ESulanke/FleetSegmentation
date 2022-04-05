@@ -1554,15 +1554,21 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
                     "#360568","#5b2a86","#7785ac","#9ac6c5","#a5e6ba","#dbebc0","#779cab","#627c85","#35524a","#0a2342",
                     "#e54b4b","#f46197","#efc3f5","#e28413","#ba9593","#cf0e12","#757761","#51bbfe","#94ecbe","#003459",
                     "#eefc57","#e2a0ff","#32de8a","#e87ea1","#53f4ff")
+
+    catchdata_clustering <- catchdata
+    catchdata_clustering$ship_ID <- rownames(catchdata_clustering)
+    catchdata_clustering <- left_join(catchdata_clustering,clustering,by="ship_ID")
+
     suppressWarnings(
       mds_3d <- assemblage_table %>%
         vegdist(method = distance) %>%
         cmdscale(k = 3) %>%
-        data.frame() %>%
-        dplyr::mutate(cluster = assemblage_matrix$cluster)%>%
-        dplyr::mutate(eunr = data$ship_ID)
-    )
-    suppressWarnings(colnames(mds_3d) <- c("Dim.1", "Dim.2","Dim.3","cluster","ship_ID"))
+        data.frame()
+      )
+
+      mds_3d$cluster <- rownames(msd_3d)
+
+    suppressWarnings(colnames(mds_3d) <- c("Dim.1", "Dim.2","Dim.3","cluster"))
     options(warn = -1)
     return(suppressWarnings(plot_ly(data = mds_3d,x=~Dim.1, y=~Dim.2, z=~Dim.3, type="scatter3d",mode="markers",color = ~cluster,colors = mdspalette)))
   }
