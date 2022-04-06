@@ -45,7 +45,7 @@ Depends:
     forcats,
     ggrepel,
     ggdendro,
-    R (>= 2.10),
+    R (>= 4.1),
     rmarkdown,
     xfun,
     tinytex,
