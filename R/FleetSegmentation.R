@@ -1537,8 +1537,11 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
 
   if(dim == 2){
 
-  zeros <- mds.assemblage %>%
-      dplyr::filter(V1 == 0 & V2 == 0)
+    zeros <- mds.assemblage %>%
+      mutate(V1 = round(V1, digits = 4),V2 = round(V2, digits = 4)) %>%
+      group_by(V1, V2) %>%
+      mutate(dupe = n()>1) %>%
+      filter(dupe == T)
 
     if(nrow(zeros) >= 1){
       warning(cat(str_to_title(unique(zeros$cluster),"have the same assemblage composition and therefore overlab in the plot.")))
@@ -1577,8 +1580,11 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
 
     suppressWarnings(colnames(mds_3d) <- c("Dim.1", "Dim.2","Dim.3","cluster"))
 
-    zeros <- mds_3d %>%
-      dplyr::filter(Dim.1 == 0 & Dim.2 == 0 & Dim.3 == 0)
+    zeros <- mds.assemblage %>%
+      mutate(Dim.1 = round(Dim.1, digits = 4),Dim.2 = round(Dim.2, digits = 4),Dim.3 = round(Dim.3, digits = 4)) %>%
+      group_by(Dim.1,Dim.2,Dim.3) %>%
+      mutate(dupe = n()>1) %>%
+      filter(dupe == T)
 
     if(nrow(zeros) >= 1){
     warning(cat(str_to_title(unique(zeros$cluster),"have the same assemblage composition and therefore overlab in the plot.")))
