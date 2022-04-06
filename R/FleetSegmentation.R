@@ -1541,7 +1541,7 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
       dplyr::filter(V1 == 0 & V2 == 0)
 
     if(nrow(zeros) >= 1){
-      cat(str_to_title(unique(zeros$cluster),"have the same assemblage composition and therefore overlab in the plot."))
+      warning(cat(str_to_title(unique(zeros$cluster),"have the same assemblage composition and therefore overlab in the plot.")))
     }
 
   if(GoF==T & interactive == F){
@@ -1581,7 +1581,7 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
       dplyr::filter(Dim.1 == 0 & Dim.2 == 0 & Dim.3 == 0)
 
     if(nrow(zeros) >= 1){
-    cat(str_to_title(unique(zeros$cluster),"have the same assemblage composition and therefore overlab in the plot."))
+    warning(cat(str_to_title(unique(zeros$cluster),"have the same assemblage composition and therefore overlab in the plot.")))
     }
     return(suppressWarnings(plot_ly(data = mds_3d,x=~Dim.1, y=~Dim.2, z=~Dim.3, type="scatter3d",mode="markers",color = ~cluster,colors = mdspalette)))
   }
