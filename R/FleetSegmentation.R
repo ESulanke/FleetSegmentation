@@ -1518,7 +1518,7 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
   rownames(assemblage_table) <- assemblage_matrix$cluster
 
   mds.assemblage <- cmdscale(vegdist(x = assemblage_table,method = distance)) %>% as.data.frame()
-  mds.assemblage$names <- rownames(mds.assemblage)
+  mds.assemblage$cluster <- rownames(mds.assemblage)
 
   # get goodness of fit
   fit <- suppressWarnings(cmdscale(vegdist(assemblage_table,method=distance),T, k=2)) # k is the number of dim
@@ -1528,7 +1528,7 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
   GOF_label <- paste("GoF =",round(GOF,digits = 2))
 
   ### mds
-  assemblage_mds <- ggplot(mds.assemblage, aes(V1, V2, label=names)) +
+  assemblage_mds <- ggplot(mds.assemblage, aes(V1, V2, label=cluster)) +
     geom_point(colour="black",fill="#B1D0E8", size=4,shape=22) +
     geom_text(colour="blue", check_overlap = TRUE, size=2.5,
               hjust = "center", vjust = "bottom", nudge_x = 0, nudge_y = 0.025) +
@@ -1536,6 +1536,13 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
     theme(axis.title = element_blank())
 
   if(dim == 2){
+
+  zeros <- mds.assemblage %>%
+      dplyr::filter(V1 == 0 & V2 == 0)
+
+    if(nrow(zeros) >= 1){
+      cat(str_to_title(unique(zeros$cluster),"have the same assemblage composition and therefore overlab in the plot."))
+    }
 
   if(GoF==T & interactive == F){
     return(
@@ -1569,7 +1576,13 @@ cluster_assemblages_MDS <- function(data,catchdata,clustering, interactive=F,GoF
       mds_3d$cluster <- rownames(mds_3d)
 
     suppressWarnings(colnames(mds_3d) <- c("Dim.1", "Dim.2","Dim.3","cluster"))
-    options(warn = -1)
+
+    zeros <- mds_3d %>%
+      dplyr::filter(Dim.1 == 0 & Dim.2 == 0 & Dim.3 == 0)
+
+    if(nrow(zeros) >= 1){
+    cat(str_to_title(unique(zeros$cluster),"have the same assemblage composition and therefore overlab in the plot."))
+    }
     return(suppressWarnings(plot_ly(data = mds_3d,x=~Dim.1, y=~Dim.2, z=~Dim.3, type="scatter3d",mode="markers",color = ~cluster,colors = mdspalette)))
   }
 }
