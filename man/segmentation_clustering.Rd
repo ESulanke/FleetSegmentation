@@ -26,6 +26,7 @@ A modified (metric-converted) Bray-Curtis distance matrix is computed from the i
 The function creates a new data frame, which can be printed or stored.
 }
 \examples{
+library(tidyverse)
 data <- example_catchdata
 stockdata <- assign_stocks(data=data)
 catchdata <- catchdata_transformation(data = stockdata)

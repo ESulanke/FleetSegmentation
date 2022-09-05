@@ -39,6 +39,7 @@ a plot of the Mantel test including the best result (lower left) and a dendrogra
 be displayed without any further features or with the recommended cutting heights (setting dend_method to "range") or a cut at a defined linkage distance (setting dend_method to "cut").
 }
 \examples{
+library(tidyverse)
 data <- example_catchdata
 stockdata <- assign_stocks(data=data)
 catchdata <- catchdata_transformation(data = stockdata)

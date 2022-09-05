@@ -18,6 +18,7 @@ This is function creates an overview mixed dot- and boxplot of the length of the
 A boxplot will only be drawn for clusters containing more than 5 ships.
 }
 \examples{
+library(tidyverse)
 data <- example_catchdata
 stockdata <- assign_stocks(data=data)
 catchdata <- catchdata_transformation(data = stockdata)

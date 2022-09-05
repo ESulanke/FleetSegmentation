@@ -30,6 +30,7 @@ clustering_stockshares_plot(
 This is function creates an overview barplot of the average shares of stocks on the catch of each clusters vessels.
 }
 \examples{
+library(tidyverse)
 data <- example_catchdata
 stockdata <- assign_stocks(data=data)
 catchdata <- catchdata_transformation(data = stockdata)
