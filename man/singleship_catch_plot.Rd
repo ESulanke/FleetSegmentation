@@ -17,6 +17,7 @@ singleship_catch_plot(data, clustering, subset = NULL)
 This is function creates an overview mixed box- and dotplot of the catch of single ships in each cluster. A boxplot will only be drawn for clusters containing more than 5 ships.
 }
 \examples{
+library(tidyverse)
 data <- example_catchdata
 stockdata <- assign_stocks(data=data)
 catchdata <- catchdata_transformation(data = stockdata)

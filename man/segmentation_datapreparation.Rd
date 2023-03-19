@@ -56,7 +56,7 @@ which are caught in larger quantities (> 100 kg) but are not part of defined ICE
 use only defined ICES-stocks. Attention! The function will drop all gear NAs!
 }
 \examples{
-segmentation_datapreparation(data = example_fleetdata,
+segmentation_datapreparation(fleetdata = example_fleetdata,
                               vessel_ID = ship_ID,
                               shiplength = shiplength,
                               gear = gear,

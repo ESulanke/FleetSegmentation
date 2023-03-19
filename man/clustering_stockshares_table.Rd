@@ -18,6 +18,7 @@ This function creates a table with the average shares of the stocks on the catch
 Alternatively, an html-table can be created by setting style = "html".
 }
 \examples{
+library(tidyverse)
 data <- example_catchdata
 stockdata <- assign_stocks(data=data)
 catchdata <- catchdata_transformation(data = stockdata)

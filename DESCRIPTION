@@ -10,7 +10,14 @@ Description: This package contains functions for a multivariate approach to the 
     It was built by Erik Sulanke, research associate at the Thuenen Institute for Sea Fisheries in Bremerhaven, Germany, subunit for economics.
     The pilot project in which this package was developed was set in the DCF of the STECF.
 License: MIT + file LICENSE
-Depends: 
+Depends:
+    R (>= 4.1),
+Imports:
+    magrittr,
+    ggplot2,
+    dplyr,
+    purrr,
+    tibble,
     knitr,
     plotly,
     kableExtra,
@@ -45,12 +52,11 @@ Depends:
     forcats,
     ggrepel,
     ggdendro,
-    R (>= 4.1),
     rmarkdown,
     xfun,
     tinytex,
     withr
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 VignetteBuilder: knitr

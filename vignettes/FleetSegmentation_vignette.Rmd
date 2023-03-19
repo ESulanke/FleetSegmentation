@@ -31,6 +31,7 @@ options(kableExtra.latex.load_packages = FALSE)
 ```
 
 ```{r setup}
+library(tidyverse)
 library(FleetSegmentation)
 ```
 
@@ -129,6 +130,7 @@ numberclust_plot(catchdata = catchdata)
 The scree plot on the upper left depicts the total within sums of squares of the clustering data. It is checked for an "elbow" in the curve, i.e., the clustering step with the steepest decline. This position is usually less pronounced in the clustering approach used than in, e.g., k-means clustering of environmental data. Yet, the `transition zone` of the curve, in which the slope decreases from steep to nearly zero, gives a good insight into how many clusters are to expect in the data set. In the case of the example data, seven to eight clusters seem to be ideal. This is supported by the average silhouette width, which is high for six to nine clusters and at a maximum at seven clusters and shows a steep decline for ten clusters and forth; and by the mantel test, which reveals a high Pearson correlation between the clustering and the original data for six to seven clusters, with a maximum at seven The visual examination of the dendrogram is another way to estimate the appropriate number of clusters in the data. The FS-package contains a function to plot only the dendrogram and manipulate the cutting height in different ways, one for cutting at a specific height and one for cutting at a range of heights. We will plot these options aligned with the *ggarrange()*-function of the *ggpubr*-package. To tidy up the grid, the y-axis label of the second and third dendrogram will be removed. These dendrograms are produced by the *ggplot*-grammar and can be manipulated with *ggplot*-functions (and all functions based on the *ggplot*-grammar).
 
 ```{r dendgrid, include=T, fig.height=2.5,fig.width=7,fig.cap="Grided plot of three dendrograms of the HAC procedure. The y-axis shows the linkage distance of clusters. A) is unmodified, B) is cut at a linkage distance of 0.75 and resulting branches are individually coloured and the resulting number of clusters is labelled, C) has cutting lines at linkages distance 0.5 and 0.9 and the range of cluster numbers resulting from those cutting heights is labelled."}
+library(ggpubr)
 # basic dendrogram
 dend1 <- numberclust_dendrogram(catchdata = catchdata)
 # dendrogram with specified cutting height at 0.75
@@ -221,7 +223,7 @@ clustering_MDS(catchdata = catchdata,clustering = clustering, dim = 3)
 This will produce an interactive, 3-Dimensional in the RStudio-Viewer looking like this:
 
 ```{r 3D_MDS,echo=F,out.width="70%",fig.align="center", fig.cap = "Snapshot of interactive 3D-MDS. Rotated to 2nd dimension being the x-axis, 3rd dimension the y-axis and and 1st dimension the z-axis."}
-include_graphics(path = "https://raw.githubusercontent.com/ESulanke/FleetSegmentation/main/vignettes/figs/FS_package_exampledata_3D_MDS.jpeg")
+knitr::include_graphics(path = "https://raw.githubusercontent.com/ESulanke/FleetSegmentation/main/vignettes/figs/FS_package_exampledata_3D_MDS.jpeg")
 ```
 
 As you see in this snapshot, adding a third dimension to the visualization of the MDS shows a large distance between the second and fifth cluster along the third axis. Differences like this can only be revealed in a three-dimensional ordination, so I encourage you to always check it in your fleet segmentation progress, even if it might take a moment to fully interpret the ordination. In both ordinations, you might have noted that two clusters (2 and 6) are only represented by a single point. This is due to the catch composition of the clusters: They heavily fish on one species, and there is close to no inner-cluster variation. Because of cases like this (which are also common in real data), it is important to get an impression on the properties of the clusters and the vessels in them besides their catch composition two finally decide on which clusters can be used as fleet segments and which clusters should be joined. The FS-package contains functions to do this, which will be covered in the next section.

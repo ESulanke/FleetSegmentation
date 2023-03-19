@@ -26,6 +26,7 @@ of the clusters in a tree plot. This a very useful method for identifying major 
 many clusters to use.
 }
 \examples{
+library(tidyverse)
 data <- example_catchdata
 stockdata <- assign_stocks(data=data)
 catchdata <- catchdata_transformation(data = stockdata)

@@ -34,6 +34,7 @@ This function plots a dendrogram of the clustering. The dendrogram can either be
 or with the recommended cutting heights (setting dend_method to "range") or a cut at a defined linkage distance (setting dend_method to "cut").
 }
 \examples{
+library(tidyverse)
 data <- example_catchdata
 stockdata <- assign_stocks(data=data)
 catchdata <- catchdata_transformation(data = stockdata)

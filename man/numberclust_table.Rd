@@ -29,6 +29,7 @@ the SD-index and the Calinski-Harabasz index. This function gives the values of 
 A modified (metric converted) Bray-Curtis distance matrix is computed from the input data, the clustering is performed as a hierarchical agglomerative clustering (HAC) using the average linkage link function.
 }
 \examples{
+library(tidyverse)
 data <- example_catchdata
 stockdata <- assign_stocks(data=data)
 catchdata <- catchdata_transformation(data = stockdata)

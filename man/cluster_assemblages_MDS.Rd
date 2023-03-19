@@ -21,6 +21,8 @@ cluster_assemblages_MDS(
 
 \item{clustering}{The result of the clustering procedure, stored as a data frame.}
 
+\item{interactive}{boolean}
+
 \item{GoF}{Display goodness of fit in the MDS plot. Defaults to TRUE}
 
 \item{distance}{The distance measure used. Defaults to modified (metric conversion) Bray-Curtis distance distance. CAUTION! The clustering approach for the fleet segmentation is designed to work with modified (metric-converted) Bray-Curtis distance and the average linkage method! Changing either of them is not advised!}
@@ -36,7 +38,7 @@ data <- example_catchdata
 stockdata <- assign_stocks(data=data)
 catchdata <- catchdata_transformation(data = stockdata)
 clustering <- segmentation_clustering(catchdata = catchdata,n_cluster = 6)
-cluster_assemblages_MDS(data =data, catchdata = catchdata,clustering = clustering, GoF=TRUE)
+cluster_assemblages_MDS(data =stockdata, catchdata = catchdata,clustering = clustering, GoF=TRUE)
 }
 \keyword{MDS}
 \keyword{clustering}

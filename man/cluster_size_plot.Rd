@@ -15,6 +15,7 @@ cluster_size_plot(clustering, subset = NULL)
 This is function creates an overview plot of the number of ships in each cluster.
 }
 \examples{
+library(tidyverse)
 data <- example_catchdata
 stockdata <- assign_stocks(data=data)
 catchdata <- catchdata_transformation(data = stockdata)
